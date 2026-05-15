@@ -8,36 +8,37 @@ endif()
 # Dependencies
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
+find_package(std_msgs REQUIRED)
+find_package(nlohmann_json REQUIRED)
+find_package(Boost REQUIRED COMPONENTS system)
 
 # RVIZ VERSION
 add_executable(walker_bridge_cpp
-  src/main.cpp
   src/walker_bridge.cpp
+  src/udp_receiver.cpp
 )
 
 ament_target_dependencies(walker_bridge_cpp
   rclcpp
+  std_msgs
+  nlohmann_json
+  Boost
 )
 
 target_include_directories(walker_bridge_cpp 
   PUBLIC
   include
+  ${Boost_INCLUDE_DIRS}
 )
 
 # Install
-install(TARGETS 
-  walker_bridge_cpp
+install(TARGETS walker_bridge_cpp
   DESTINATION lib/${PROJECT_NAME}
 )
 
 # Install headers
 install(DIRECTORY include/
   DESTINATION include
-)
-
-# Install motion data
-install(DIRECTORY data/
-  DESTINATION share/${PROJECT_NAME}
 )
 
 ament_package()

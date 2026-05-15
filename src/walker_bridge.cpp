@@ -1,6 +1,13 @@
-#include "walker_bridge_cpp/walker_bridge.hpp"
+#include "walker_bridge_cpp/udp_receiver.hpp"
+#include <rclcpp/rclcpp.hpp>
 
-WalkerBridge::WalkerBridge()
+
+int main(int argc, char ** argv)
 {
-  
+  rclcpp::init(argc, argv);
+  auto node = std::make_shared<UdpReceiver>();
+
+  rclcpp::spin(node);
+  rclcpp::shutdown();
+  return 0;
 }
