@@ -1,4 +1,4 @@
-#include "udp_ros_bridge9/udp_receiver.hpp"
+#include "udp_ros_bridge/udp_receiver.hpp"
 #include <iostream>
 #include <cstring>
 #include <chrono>
@@ -101,16 +101,22 @@ void UdpReceiver::handle_receive(const boost::system::error_code& error, std::si
   }
 
   UdpMessage msg;
-  auto now = std::chrono::system_clock::now();
-  msg.timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(
-    now.time_since_epoch()
-  ).count();
+  auto now = std::chrono::steady_clock::now();
+  msg.receive_timestamp_ns =
+    std::chrono::duration_cast<std::chrono::nanoseconds>(now.time_since_epoch()).count();
 
-  if (bytes_received > BUFFER_SIZE) {
-    std::cerr << "[UdpReceiver] UDP packet truncated\n";
+  constexpr std::size_t MAX_MSG_SIZE = sizeof(msg.data);
+
+  if (bytes_received > MAX_MSG_SIZE) {
+    std::cerr << "[UdpReceiver] UDP packet truncated ("
+              << bytes_received
+              << " bytes > "
+              << MAX_MSG_SIZE
+              << ")\n";
   }
+
   msg.size = static_cast<uint16_t>(
-    std::min<std::size_t>(bytes_received, BUFFER_SIZE)
+    std::min<std::size_t>(bytes_received, MAX_MSG_SIZE)
   );
 
   std::memcpy(msg.data, buffer_.data(), msg.size);

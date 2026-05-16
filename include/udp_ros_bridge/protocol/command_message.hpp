@@ -51,7 +51,9 @@ namespace walker_bridge
   // -------------------- main message --------------------
   struct CommandMessage
   {
-    uint64_t timestamp = 0;
+    uint64_t sender_timestamp = 0;
+    uint64_t receive_timestamp = 0;
+    
     std::string robot_id;
     
     CommandType type = CommandType::Unknown;

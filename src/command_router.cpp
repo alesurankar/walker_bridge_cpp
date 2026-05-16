@@ -36,14 +36,14 @@ CommandMessage CommandRouter::parse_message(const std::string& message)
   try {
     json j = json::parse(message);
 
-    cmd.timestamp =
-      static_cast<uint64_t>(j.value("timestamp", 0.0));
+    cmd.sender_timestamp =
+      j.value<uint64_t>("timestamp", 0);
 
     cmd.robot_id =
       j.value("robot_id", "unknown");
 
     cmd.priority =
-      j.value("priority", 0);
+      static_cast<uint8_t>(j.value<int>("priority", 0));
 
     cmd.type =
       walker_bridge::command_type_from_string(

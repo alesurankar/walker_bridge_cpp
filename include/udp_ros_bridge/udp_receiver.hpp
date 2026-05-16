@@ -21,7 +21,7 @@ private:
   void start_receive();
   void handle_receive(const boost::system::error_code& error, std::size_t bytes_received);
 private:
-  static constexpr std::size_t BUFFER_SIZE = 65535;
+  static constexpr std::size_t BUFFER_SIZE = 1400;
   uint16_t port_;
   boost::asio::io_context io_context_;
   boost::asio::executor_work_guard<boost::asio::io_context::executor_type> work_guard_;

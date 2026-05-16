@@ -9,7 +9,8 @@ class UdpBridgeNode : public rclcpp::Node
 {
 public:
   UdpBridgeNode()
-  : Node("udp_bridge_node"),
+    : 
+    Node("udp_bridge_node"),
     udp_(17945),
     command_router_(std::make_shared<CommandRouter>())
   {
@@ -24,11 +25,13 @@ private:
   void poll_udp()
   {
     UdpMessage msg;
+    
     while (udp_.pop_message(msg)) {
       std::string data(msg.data, msg.size);
       command_router_->on_udp_message(data);
     }
   }
+
   UdpReceiver udp_;
   std::shared_ptr<CommandRouter> command_router_;
   rclcpp::TimerBase::SharedPtr timer_;

@@ -4,7 +4,7 @@
 
 struct UdpMessage
 {
-  uint64_t timestamp;
+  uint64_t receive_timestamp_ns;
   uint16_t size;
-  char data[1024];
+  char data[1400];
 };
