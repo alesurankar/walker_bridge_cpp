@@ -14,7 +14,6 @@ public:
   ~CommandRouter() override = default;
   void on_udp_message(const UdpMessage& msg);
 private:
-  udp_ros_bridge::CommandMessage parse_message(std::string_view message);
   void on_command(const udp_ros_bridge::CommandMessage& cmd);
   void handle_joint_control(const udp_ros_bridge::CommandMessage& cmd);
   void handle_walk_command(const udp_ros_bridge::CommandMessage& cmd);

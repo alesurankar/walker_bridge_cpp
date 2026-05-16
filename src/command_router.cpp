@@ -1,5 +1,6 @@
 #include "udp_ros_bridge/command_router.hpp"
 #include <nlohmann/json.hpp>
+#include "udp_ros_bridge/protocol/command_decoder.hpp"
 
 
 using udp_ros_bridge::CommandMessage;
@@ -17,55 +18,16 @@ void CommandRouter::on_udp_message(const UdpMessage& msg)
 {
   RCLCPP_INFO(this->get_logger(), "Received UDP message");
 
-  CommandMessage cmd = parse_message(
+  auto cmd = udp_ros_bridge::CommandDecoder::decode(
     std::string_view(msg.data, msg.size)
   );
 
-  on_command(cmd);
-}
-
-CommandMessage CommandRouter::parse_message(std::string_view message)
-{
-  using json = nlohmann::json;
-
-  RCLCPP_INFO(this->get_logger(), "Parsing message");
-
-  udp_ros_bridge::CommandMessage cmd;
-
-  try {
-    json j = json::parse(message);
-
-    cmd.sender_timestamp = j.value<uint64_t>("timestamp", 0);
-    cmd.robot_id = j.value("robot_id", "unknown");
-    cmd.priority = static_cast<uint8_t>(j.value<int>("priority", 0));
-
-    cmd.type = udp_ros_bridge::command_type_from_string(
-      j.value("type", "unknown")
-    );
-
-    switch (cmd.type) {
-      case udp_ros_bridge::CommandType::BaseVelocity: {
-        const json params = j.value("payload", json::object());
-
-        udp_ros_bridge::BaseVelocity vel;
-        vel.vx = params.value("vx", 0.0f);
-        vel.vy = params.value("vy", 0.0f);
-        vel.yaw_rate = params.value("yaw_rate", 0.0f);
-
-        cmd.payload = vel;
-        break;
-      }
-
-      default:
-        RCLCPP_WARN(this->get_logger(), "Unsupported command type");
-        break;
-    }
-  }
-  catch (const std::exception& e) {
-    RCLCPP_ERROR(this->get_logger(), "JSON parse error: %s", e.what());
+  if (!cmd) {
+    RCLCPP_WARN(this->get_logger(), "Failed to decode UDP message");
+    return;
   }
 
-  return cmd;
+  on_command(*cmd);
 }
 
 void CommandRouter::on_command(const CommandMessage& cmd)
