@@ -10,18 +10,16 @@ start = time.time()
 
 while True:
     msg = {
-        "timestamp": time.time() - start,
+        "timestamp": int((time.time() - start) * 1000),
         "robot_id": "humanoid_01",
-        "type": "command",
-        "command": {
-            "mode": "walk",
-            "params": {
-                "vx": 1.1,
-                "vy": 0.0,
-                "yaw_rate": 0.1
-            }
-        },
-        "priority": 1
+        "type": "base_velocity",
+        "priority": 1,
+
+        "payload": {
+            "vx": 1.1,
+            "vy": 0.0,
+            "yaw_rate": 0.1
+        }
     }
 
     data = json.dumps(msg).encode("utf-8")

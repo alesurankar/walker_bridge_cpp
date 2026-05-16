@@ -36,16 +36,48 @@ CommandMessage CommandRouter::parse_message(const std::string& message)
   try {
     json j = json::parse(message);
 
-    cmd.type = j["type"];
-    cmd.mode = j["command"]["mode"];
+    cmd.timestamp =
+      static_cast<uint64_t>(j.value("timestamp", 0.0));
 
-    auto params = j["command"]["params"];
-    cmd.vx = params.value("vx", 0.0f);
-    cmd.vy = params.value("vy", 0.0f);
-    cmd.yaw_rate = params.value("yaw_rate", 0.0f);
+    cmd.robot_id =
+      j.value("robot_id", "unknown");
 
-  } catch (const std::exception& e) {
-    std::cout << "[CommandRouter] JSON parse error: " << e.what() << std::endl;
+    cmd.priority =
+      j.value("priority", 0);
+
+    cmd.type =
+      walker_bridge::command_type_from_string(
+        j.value("type", "unknown")
+      );
+
+    switch (cmd.type) {
+      case walker_bridge::CommandType::BaseVelocity:
+      {
+        auto params = j["params"];
+
+        walker_bridge::BaseVelocity vel;
+
+        vel.vx =
+          params.value("vx", 0.0f);
+
+        vel.vy =
+          params.value("vy", 0.0f);
+
+        vel.yaw_rate =
+          params.value("yaw_rate", 0.0f);
+
+        cmd.payload = vel;
+        break;
+      }
+
+      default:
+        std::cout << "[CommandRouter] Unsupported command type\n";
+        break;
+    }
+  }
+  catch (const std::exception& e) {
+    std::cout << "[CommandRouter] JSON parse error: "
+              << e.what() << std::endl;
   }
 
   return cmd;
@@ -53,16 +85,33 @@ CommandMessage CommandRouter::parse_message(const std::string& message)
 
 void CommandRouter::on_command(const CommandMessage& cmd)
 {
-  std::cout << "[CommandRouter] Routing command mode: " << cmd.mode << std::endl;
+  using walker_bridge::CommandType;
 
-  if (cmd.mode == "walk")
-    handle_walk_command(cmd);
-  else if (cmd.mode == "reach")
-    handle_reach_command(cmd);
-  else if (cmd.mode == "estop")
-    handle_estop_command(cmd);
-  else
-    std::cout << "[CommandRouter] Unknown mode: " << cmd.mode << std::endl;
+  std::cout << "[CommandRouter] Routing command type: "
+            << walker_bridge::command_type_to_string(cmd.type)
+            << std::endl;
+
+  switch (cmd.type) {
+    case CommandType::BaseVelocity:
+      handle_walk_command(cmd);
+      break;
+
+    case CommandType::JointPosition:
+      handle_joint_control(cmd);
+      break;
+
+    case CommandType::CartesianPose:
+      handle_reach_command(cmd);
+      break;
+
+    case CommandType::Stop:
+      handle_estop_command(cmd);
+      break;
+
+    default:
+      std::cout << "[CommandRouter] Unknown command type\n";
+      break;
+  }
 }
 
 void CommandRouter::handle_joint_control(const CommandMessage& cmd)
@@ -73,10 +122,18 @@ void CommandRouter::handle_joint_control(const CommandMessage& cmd)
 
 void CommandRouter::handle_walk_command(const CommandMessage& cmd)
 {
-  std::cout << "[CommandRouter] Walk command: "
-            << cmd.vx << ", "
-            << cmd.vy << ", "
-            << cmd.yaw_rate << std::endl;
+  if (!std::holds_alternative<walker_bridge::BaseVelocity>(cmd.payload)) {
+    std::cout << "[CommandRouter] Invalid payload for BaseVelocity\n";
+    return;
+  }
+
+  const auto& vel =
+    std::get<walker_bridge::BaseVelocity>(cmd.payload);
+
+  std::cout << "[CommandRouter] Base velocity command: "
+            << vel.vx << ", "
+            << vel.vy << ", "
+            << vel.yaw_rate << std::endl;
 }
 
 void CommandRouter::handle_reach_command(const CommandMessage& cmd)
