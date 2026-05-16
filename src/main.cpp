@@ -5,6 +5,8 @@
 #include <chrono>
 
 
+static constexpr int MAX_MESSAGES_PER_TICK = 20;
+
 class UdpBridgeNode : public rclcpp::Node
 {
 public:
@@ -25,15 +27,27 @@ private:
   void poll_udp()
   {
     UdpMessage msg;
+    size_t processed = 0;
 
-    while (udp_.pop_message(msg)) {
+    while (processed < MAX_MESSAGES_PER_TICK)
+    {
+      if (!udp_.pop_message(msg)) {
+        break;
+      }
+
       command_router_->on_udp_message(msg);
+      processed++;
+    }
+
+    if (processed == MAX_MESSAGES_PER_TICK) {
+      budget_limit_hits_++;
     }
   }
 
   UdpReceiver udp_;
   std::shared_ptr<CommandRouter> command_router_;
   rclcpp::TimerBase::SharedPtr timer_;
+  size_t budget_limit_hits_ = 0;
 };
 
 int main(int argc, char ** argv)
