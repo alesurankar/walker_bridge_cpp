@@ -1,24 +1,34 @@
 #pragma once
-#include <rclcpp/rclcpp.hpp>
-#include <std_msgs/msg/float32_multi_array.hpp>
 #include <boost/asio.hpp>
 #include <array>
 #include <thread>
+#include <functional>
+#include <string>
 
 
-class UdpReceiver : public rclcpp::Node
+class UdpRouter
 {
 public:
-  UdpReceiver();
-  ~UdpReceiver();
+  using MessageCallback = std::function<void(const std::string& message)>;
+public:
+  explicit UdpRouter(uint16_t port);
+  ~UdpRouter();
+  void start();
+  void stop();
+  void set_callback(MessageCallback cb);
 private:
+  void io_loop();
   void start_receive();
+  void handle_receive(const boost::system::error_code& error, std::size_t bytes_received);
 private:
-  static constexpr int PORT = 17945;
+  static constexpr std::size_t BUFFER_SIZE = 65535;
+  uint16_t port_;
   boost::asio::io_context io_context_;
   boost::asio::executor_work_guard<boost::asio::io_context::executor_type> work_guard_;
   boost::asio::ip::udp::socket socket_;
   boost::asio::ip::udp::endpoint remote_endpoint_;
+  std::array<char, BUFFER_SIZE> buffer_;
   std::thread io_thread_;
-  rclcpp::Publisher<std_msgs::msg::Float32MultiArray>::SharedPtr pub_;
+  MessageCallback callback_;
+  bool running_ = false;
 };
