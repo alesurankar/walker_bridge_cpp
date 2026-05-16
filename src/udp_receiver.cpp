@@ -30,7 +30,9 @@ void UdpReceiver::start()
   std::cout << "[UdpReceiver] start()" << std::endl;
   running_ = true;
 
-  socket_.open(udp::v4());
+  if (!socket_.is_open()) {
+    socket_.open(udp::v4());
+  }
   socket_.bind(udp::endpoint(
     udp::v4(),
     port_
@@ -66,6 +68,7 @@ void UdpReceiver::io_loop()
 
 void UdpReceiver::start_receive()
 {
+  std::cout << "=============================" << std::endl;
   std::cout << "[UdpReceiver] start_receive()" << std::endl;
   socket_.async_receive_from(
     boost::asio::buffer(buffer_),
@@ -83,8 +86,16 @@ void UdpReceiver::start_receive()
 
 void UdpReceiver::handle_receive(const boost::system::error_code& error, std::size_t bytes_received)
 {
-  (void)error;
-  (void)bytes_received;
+  if (error) {
+    return;
+  }
+
+  std::string msg(buffer_.data(), bytes_received);
+  std::cout << "[UdpReceiver] msg: " << msg << std::endl;
+
+  if (callback_) {
+    callback_(msg);
+  }
+
   std::cout << "[UdpReceiver] handle_receive() bytes: " << bytes_received << std::endl;
 }
-
