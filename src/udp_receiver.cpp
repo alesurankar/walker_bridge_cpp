@@ -59,6 +59,7 @@ void UdpReceiver::stop()
   boost::system::error_code ec;
   socket_.cancel(ec);
   socket_.close(ec);
+  work_guard_.reset();
   io_context_.stop();
 
   if (io_thread_.joinable()) {

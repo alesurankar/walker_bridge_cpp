@@ -29,6 +29,6 @@ private:
   boost::asio::ip::udp::endpoint remote_endpoint_;
   std::array<char, BUFFER_SIZE> buffer_;
   std::thread io_thread_;
-  boost::lockfree::queue<UdpMessage, boost::lockfree::capacity<2048>> queue_;
+  boost::lockfree::queue<UdpMessage, boost::lockfree::capacity<1024>> queue_;
   std::atomic<bool> running_{false};
 };

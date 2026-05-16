@@ -1,5 +1,4 @@
 #include "udp_ros_bridge/command_router.hpp"
-#include <nlohmann/json.hpp>
 #include "udp_ros_bridge/protocol/command_decoder.hpp"
 
 
@@ -32,11 +31,13 @@ void CommandRouter::on_udp_message(const UdpMessage& msg)
 
 void CommandRouter::on_command(const CommandMessage& cmd)
 {
-  using udp_ros_bridge::CommandType;
+  RCLCPP_INFO(
+    this->get_logger(),
+    "Routing command type: %s",
+    udp_ros_bridge::command_type_to_string(cmd.type)
+  );
 
-  std::cout << "[CommandRouter] Routing command type: "
-            << udp_ros_bridge::command_type_to_string(cmd.type)
-            << std::endl;
+  using udp_ros_bridge::CommandType;
 
   switch (cmd.type) {
     case CommandType::BaseVelocity:
@@ -56,7 +57,7 @@ void CommandRouter::on_command(const CommandMessage& cmd)
       break;
 
     default:
-      std::cout << "[CommandRouter] Unknown command type\n";
+      RCLCPP_WARN(this->get_logger(), "Unknown command type");
       break;
   }
 }
@@ -64,40 +65,43 @@ void CommandRouter::on_command(const CommandMessage& cmd)
 void CommandRouter::handle_joint_control(const CommandMessage& cmd)
 {
   (void)cmd;
-  std::cout << "[CommandRouter] Joint control command received" << std::endl;
+  RCLCPP_INFO(this->get_logger(), "Joint control command received");
 }
 
 void CommandRouter::handle_walk_command(const CommandMessage& cmd)
 {
   if (!std::holds_alternative<udp_ros_bridge::BaseVelocity>(cmd.payload)) {
-    std::cout << "[CommandRouter] Invalid payload for BaseVelocity\n";
+    RCLCPP_WARN(this->get_logger(), "Invalid payload for BaseVelocity");
     return;
   }
 
   const auto& vel =
     std::get<udp_ros_bridge::BaseVelocity>(cmd.payload);
 
-  std::cout << "[CommandRouter] Base velocity command: "
-            << vel.vx << ", "
-            << vel.vy << ", "
-            << vel.yaw_rate << std::endl;
+  RCLCPP_INFO(
+    this->get_logger(),
+    "Base velocity command: vx=%.3f vy=%.3f yaw=%.3f",
+    vel.vx,
+    vel.vy,
+    vel.yaw_rate
+  );
 }
 
 void CommandRouter::handle_reach_command(const CommandMessage& cmd)
 {
   (void)cmd;
-  std::cout << "[CommandRouter] Reach command" << std::endl;
+  RCLCPP_INFO(this->get_logger(), "Reach command received");
 }
 
 void CommandRouter::handle_estop_command(const CommandMessage& cmd)
 {
   (void)cmd;
-  std::cout << "[CommandRouter] EMERGENCY STOP command" << std::endl;
+  RCLCPP_WARN(this->get_logger(), "EMERGENCY STOP command");
 }
 
 void CommandRouter::publish_joint_state(const sensor_msgs::msg::JointState& msg)
 {
-  std::cout << "[CommandRouter] Publishing JointState" << std::endl;
+  RCLCPP_INFO(this->get_logger(), "Publishing JointState");
   joint_pub_->publish(msg);
 }
 
