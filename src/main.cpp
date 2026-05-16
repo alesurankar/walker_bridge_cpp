@@ -19,7 +19,7 @@ public:
     udp_.start();
 
     timer_ = this->create_wall_timer(
-      std::chrono::milliseconds(1),
+      std::chrono::milliseconds(5),
       std::bind(&UdpBridgeNode::poll_udp, this)
     );
   }
