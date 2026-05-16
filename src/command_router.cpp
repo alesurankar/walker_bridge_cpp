@@ -53,18 +53,13 @@ CommandMessage CommandRouter::parse_message(const std::string& message)
     switch (cmd.type) {
       case walker_bridge::CommandType::BaseVelocity:
       {
-        auto params = j["params"];
+        const json params = j.value("payload", json::object());
 
         walker_bridge::BaseVelocity vel;
 
-        vel.vx =
-          params.value("vx", 0.0f);
-
-        vel.vy =
-          params.value("vy", 0.0f);
-
-        vel.yaw_rate =
-          params.value("yaw_rate", 0.0f);
+        vel.vx = params.value("vx", 0.0f);
+        vel.vy = params.value("vy", 0.0f);
+        vel.yaw_rate = params.value("yaw_rate", 0.0f);
 
         cmd.payload = vel;
         break;

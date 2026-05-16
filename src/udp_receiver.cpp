@@ -28,15 +28,20 @@ void UdpReceiver::start()
   if (!socket_.is_open()) {
     socket_.open(udp::v4());
   }
+  
+  boost::asio::socket_base::reuse_address option(true);
+  socket_.set_option(option);
+
   socket_.bind(udp::endpoint(
     udp::v4(),
     port_
   ));
-    io_thread_ = std::thread([this]() {
+
+  start_receive();
+  io_thread_ = std::thread([this]() {
     io_context_.run();
   });
 
-  start_receive();
 }
 
 void UdpReceiver::stop()
@@ -49,6 +54,7 @@ void UdpReceiver::stop()
   running_ = false;
 
   boost::system::error_code ec;
+  socket_.cancel(ec);
   socket_.close(ec);
   io_context_.stop();
 
@@ -88,7 +94,13 @@ void UdpReceiver::start_receive()
 
 void UdpReceiver::handle_receive(const boost::system::error_code& error, std::size_t bytes_received)
 {
+  if (error == boost::asio::error::operation_aborted) {
+    return;
+  }
+
   if (error) {
+    std::cerr << "[UdpReceiver] error: " << error.message()
+              << " code: " << error.value() << std::endl;
     return;
   }
 

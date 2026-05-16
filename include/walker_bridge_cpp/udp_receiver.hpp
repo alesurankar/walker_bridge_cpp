@@ -5,6 +5,7 @@
 #include <functional>
 #include <string>
 #include <cstdint>
+#include <atomic>
 
 
 class UdpReceiver
@@ -31,5 +32,5 @@ private:
   std::array<char, BUFFER_SIZE> buffer_;
   std::thread io_thread_;
   MessageCallback callback_;
-  bool running_ = false;
+  std::atomic<bool> running_{false};
 };
