@@ -1,4 +1,5 @@
 #include "walker_bridge_cpp/command_router.hpp"
+#include <nlohmann/json.hpp>
 #include <iostream>
 
 
@@ -26,16 +27,26 @@ void CommandRouter::on_udp_message(const std::string& message)
 
 CommandMessage CommandRouter::parse_message(const std::string& message)
 {
-  (void)message;
+  using json = nlohmann::json;
 
   std::cout << "[CommandRouter] Parsing message" << std::endl;
 
   CommandMessage cmd;
-  cmd.type = "command";
-  cmd.mode = "walk";
-  cmd.vx = 0.2f;
-  cmd.vy = 0.0f;
-  cmd.yaw_rate = 0.1f;
+
+  try {
+    json j = json::parse(message);
+
+    cmd.type = j["type"];
+    cmd.mode = j["command"]["mode"];
+
+    auto params = j["command"]["params"];
+    cmd.vx = params.value("vx", 0.0f);
+    cmd.vy = params.value("vy", 0.0f);
+    cmd.yaw_rate = params.value("yaw_rate", 0.0f);
+
+  } catch (const std::exception& e) {
+    std::cout << "[CommandRouter] JSON parse error: " << e.what() << std::endl;
+  }
 
   return cmd;
 }
