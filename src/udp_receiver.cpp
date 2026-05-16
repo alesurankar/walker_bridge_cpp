@@ -67,6 +67,18 @@ void UdpReceiver::io_loop()
 void UdpReceiver::start_receive()
 {
   std::cout << "[UdpReceiver] start_receive()" << std::endl;
+  socket_.async_receive_from(
+    boost::asio::buffer(buffer_),
+    remote_endpoint_,
+    [this](const boost::system::error_code& error, std::size_t bytes_received)
+    {
+      handle_receive(error, bytes_received);
+
+      if (running_) {
+        start_receive();
+      }
+    }
+  );
 }
 
 void UdpReceiver::handle_receive(const boost::system::error_code& error, std::size_t bytes_received)
