@@ -1,5 +1,8 @@
 #include "walker_bridge_cpp/udp_receiver.hpp"
 #include <iostream>
+#include <cstring>
+#include <chrono>
+#include <algorithm>
 
 
 using udp = boost::asio::ip::udp;
@@ -63,15 +66,9 @@ void UdpReceiver::stop()
   }
 }
 
-void UdpReceiver::set_callback(MessageCallback cb)
+bool UdpReceiver::pop_message(UdpMessage& out_msg)
 {
-  callback_ = cb;
-  std::cout << "[UdpReceiver] callback set" << std::endl;
-}
-
-void UdpReceiver::io_loop()
-{
-  std::cout << "[UdpReceiver] io_loop()" << std::endl;
+  return queue_.pop(out_msg);
 }
 
 void UdpReceiver::start_receive()
@@ -99,17 +96,26 @@ void UdpReceiver::handle_receive(const boost::system::error_code& error, std::si
   }
 
   if (error) {
-    std::cerr << "[UdpReceiver] error: " << error.message()
-              << " code: " << error.value() << std::endl;
+    std::cerr << "[UdpReceiver] error: " << error.message() << std::endl;
     return;
   }
 
-  std::string msg(buffer_.data(), bytes_received);
-  std::cout << "[UdpReceiver] msg: " << msg << std::endl;
+  UdpMessage msg;
+  auto now = std::chrono::system_clock::now();
+  msg.timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(
+    now.time_since_epoch()
+  ).count();
 
-  if (callback_) {
-    callback_(msg);
+  if (bytes_received > BUFFER_SIZE) {
+    std::cerr << "[UdpReceiver] UDP packet truncated\n";
   }
+  msg.size = static_cast<uint16_t>(
+    std::min<std::size_t>(bytes_received, BUFFER_SIZE)
+  );
 
-  std::cout << "[UdpReceiver] handle_receive() bytes: " << bytes_received << std::endl;
+  std::memcpy(msg.data, buffer_.data(), msg.size);
+
+  if (!queue_.push(msg)) {
+    std::cerr << "[UdpReceiver] queue full, dropping message\n";
+  }
 }

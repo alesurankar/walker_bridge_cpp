@@ -1,25 +1,23 @@
 #pragma once
 #include <boost/asio.hpp>
+#include <boost/lockfree/queue.hpp>
 #include <array>
 #include <thread>
-#include <functional>
 #include <string>
 #include <cstdint>
 #include <atomic>
+#include "walker_bridge_cpp/protocol/udp_message.hpp"
 
 
 class UdpReceiver
 {
 public:
-  using MessageCallback = std::function<void(const std::string& message)>;
-public:
   explicit UdpReceiver(uint16_t port);
   ~UdpReceiver();
   void start();
   void stop();
-  void set_callback(MessageCallback cb);
+  bool pop_message(UdpMessage& out_msg);
 private:
-  void io_loop();
   void start_receive();
   void handle_receive(const boost::system::error_code& error, std::size_t bytes_received);
 private:
@@ -31,6 +29,6 @@ private:
   boost::asio::ip::udp::endpoint remote_endpoint_;
   std::array<char, BUFFER_SIZE> buffer_;
   std::thread io_thread_;
-  MessageCallback callback_;
+  boost::lockfree::queue<UdpMessage, boost::lockfree::capacity<2048>> queue_;
   std::atomic<bool> running_{false};
 };
