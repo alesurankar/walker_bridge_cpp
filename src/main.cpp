@@ -1,4 +1,4 @@
-#include "walker_bridge_cpp/udp_router.hpp"
+#include "walker_bridge_cpp/udp_receiver.hpp"
 #include "walker_bridge_cpp/command_router.hpp"
 #include <rclcpp/rclcpp.hpp>
 #include <memory>
@@ -12,7 +12,7 @@ int main(int argc, char ** argv)
   auto command_router = std::make_shared<CommandRouter>();
 
   // 2. Create UDP transport
-  UdpRouter udp(17945);
+  UdpReceiver udp(17945);
 
   // 3. Wire UDP → CommandRouter
   udp.set_callback(
@@ -29,7 +29,6 @@ int main(int argc, char ** argv)
   executor.spin();
 
   // shutdown
-  udp.stop();
   rclcpp::shutdown();
 
   return 0;

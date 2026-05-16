@@ -6,13 +6,13 @@
 #include <string>
 
 
-class UdpRouter
+class UdpReceiver
 {
 public:
   using MessageCallback = std::function<void(const std::string& message)>;
 public:
-  explicit UdpRouter(uint16_t port);
-  ~UdpRouter();
+  explicit UdpReceiver(uint16_t port);
+  ~UdpReceiver();
   void start();
   void stop();
   void set_callback(MessageCallback cb);
