@@ -2,7 +2,7 @@
 #include <nlohmann/json.hpp>
 
 
-using walker_bridge::CommandMessage;
+using udp_ros_bridge::CommandMessage;
 
 CommandRouter::CommandRouter()
   : 
@@ -24,38 +24,30 @@ void CommandRouter::on_udp_message(const UdpMessage& msg)
   on_command(cmd);
 }
 
-CommandMessage CommandRouter::parse_message(const std::string& message)
+CommandMessage CommandRouter::parse_message(std::string_view message)
 {
   using json = nlohmann::json;
 
-  std::cout << "[CommandRouter] Parsing message" << std::endl;
+  RCLCPP_INFO(this->get_logger(), "Parsing message");
 
-  CommandMessage cmd;
+  udp_ros_bridge::CommandMessage cmd;
 
   try {
     json j = json::parse(message);
 
-    cmd.sender_timestamp =
-      j.value<uint64_t>("timestamp", 0);
+    cmd.sender_timestamp = j.value<uint64_t>("timestamp", 0);
+    cmd.robot_id = j.value("robot_id", "unknown");
+    cmd.priority = static_cast<uint8_t>(j.value<int>("priority", 0));
 
-    cmd.robot_id =
-      j.value("robot_id", "unknown");
-
-    cmd.priority =
-      static_cast<uint8_t>(j.value<int>("priority", 0));
-
-    cmd.type =
-      walker_bridge::command_type_from_string(
-        j.value("type", "unknown")
-      );
+    cmd.type = udp_ros_bridge::command_type_from_string(
+      j.value("type", "unknown")
+    );
 
     switch (cmd.type) {
-      case walker_bridge::CommandType::BaseVelocity:
-      {
+      case udp_ros_bridge::CommandType::BaseVelocity: {
         const json params = j.value("payload", json::object());
 
-        walker_bridge::BaseVelocity vel;
-
+        udp_ros_bridge::BaseVelocity vel;
         vel.vx = params.value("vx", 0.0f);
         vel.vy = params.value("vy", 0.0f);
         vel.yaw_rate = params.value("yaw_rate", 0.0f);
@@ -65,13 +57,12 @@ CommandMessage CommandRouter::parse_message(const std::string& message)
       }
 
       default:
-        std::cout << "[CommandRouter] Unsupported command type\n";
+        RCLCPP_WARN(this->get_logger(), "Unsupported command type");
         break;
     }
   }
   catch (const std::exception& e) {
-    std::cout << "[CommandRouter] JSON parse error: "
-              << e.what() << std::endl;
+    RCLCPP_ERROR(this->get_logger(), "JSON parse error: %s", e.what());
   }
 
   return cmd;
@@ -79,10 +70,10 @@ CommandMessage CommandRouter::parse_message(const std::string& message)
 
 void CommandRouter::on_command(const CommandMessage& cmd)
 {
-  using walker_bridge::CommandType;
+  using udp_ros_bridge::CommandType;
 
   std::cout << "[CommandRouter] Routing command type: "
-            << walker_bridge::command_type_to_string(cmd.type)
+            << udp_ros_bridge::command_type_to_string(cmd.type)
             << std::endl;
 
   switch (cmd.type) {
@@ -116,13 +107,13 @@ void CommandRouter::handle_joint_control(const CommandMessage& cmd)
 
 void CommandRouter::handle_walk_command(const CommandMessage& cmd)
 {
-  if (!std::holds_alternative<walker_bridge::BaseVelocity>(cmd.payload)) {
+  if (!std::holds_alternative<udp_ros_bridge::BaseVelocity>(cmd.payload)) {
     std::cout << "[CommandRouter] Invalid payload for BaseVelocity\n";
     return;
   }
 
   const auto& vel =
-    std::get<walker_bridge::BaseVelocity>(cmd.payload);
+    std::get<udp_ros_bridge::BaseVelocity>(cmd.payload);
 
   std::cout << "[CommandRouter] Base velocity command: "
             << vel.vx << ", "

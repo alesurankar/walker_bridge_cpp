@@ -14,12 +14,12 @@ public:
   ~CommandRouter() override = default;
   void on_udp_message(const UdpMessage& msg);
 private:
-  walker_bridge::CommandMessage parse_message(const std::string& message);
-  void on_command(const walker_bridge::CommandMessage& cmd);
-  void handle_joint_control(const walker_bridge::CommandMessage& cmd);
-  void handle_walk_command(const walker_bridge::CommandMessage& cmd);
-  void handle_reach_command(const walker_bridge::CommandMessage& cmd);
-  void handle_estop_command(const walker_bridge::CommandMessage& cmd);
+  udp_ros_bridge::CommandMessage parse_message(std::string_view message);
+  void on_command(const udp_ros_bridge::CommandMessage& cmd);
+  void handle_joint_control(const udp_ros_bridge::CommandMessage& cmd);
+  void handle_walk_command(const udp_ros_bridge::CommandMessage& cmd);
+  void handle_reach_command(const udp_ros_bridge::CommandMessage& cmd);
+  void handle_estop_command(const udp_ros_bridge::CommandMessage& cmd);
   void publish_joint_state(const sensor_msgs::msg::JointState& msg);
 private:
   rclcpp::Publisher<sensor_msgs::msg::JointState>::SharedPtr joint_pub_;

@@ -5,7 +5,7 @@
 #include <cstdint>
 
 
-namespace walker_bridge
+namespace udp_ros_bridge
 {
   enum class CommandType
   {
