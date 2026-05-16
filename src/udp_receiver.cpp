@@ -17,11 +17,6 @@ UdpReceiver::UdpReceiver(uint16_t port)
 UdpReceiver::~UdpReceiver()
 {
   stop();
-  
-  if (io_thread_.joinable()) {
-    io_thread_.join();
-  }
-
   std::cout << "[UdpReceiver] destroyed" << std::endl;
 }
 
@@ -52,7 +47,14 @@ void UdpReceiver::stop()
 
   std::cout << "[UdpReceiver] stop()" << std::endl;
   running_ = false;
+
+  boost::system::error_code ec;
+  socket_.close(ec);
   io_context_.stop();
+
+  if (io_thread_.joinable()) {
+    io_thread_.join();
+  }
 }
 
 void UdpReceiver::set_callback(MessageCallback cb)
