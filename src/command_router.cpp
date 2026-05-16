@@ -1,6 +1,5 @@
 #include "udp_ros_bridge/command_router.hpp"
 #include <nlohmann/json.hpp>
-#include <iostream>
 
 
 using walker_bridge::CommandMessage;
@@ -14,14 +13,14 @@ CommandRouter::CommandRouter()
   );
 }
 
-void CommandRouter::on_udp_message(const std::string& message)
+void CommandRouter::on_udp_message(const UdpMessage& msg)
 {
-  std::cout << "[CommandRouter] Received UDP message: " << message << std::endl;
+  RCLCPP_INFO(this->get_logger(), "Received UDP message");
 
-  std::cout << "[CommandRouter] -> parsing" << std::endl;
-  CommandMessage cmd = parse_message(message);
+  CommandMessage cmd = parse_message(
+    std::string_view(msg.data, msg.size)
+  );
 
-  std::cout << "[CommandRouter] -> routing command" << std::endl;
   on_command(cmd);
 }
 

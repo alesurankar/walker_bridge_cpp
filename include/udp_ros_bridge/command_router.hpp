@@ -4,6 +4,7 @@
 #include <string>
 #include <memory>
 #include "udp_ros_bridge/protocol/command_message.hpp"
+#include "udp_ros_bridge/protocol/udp_message.hpp"
 
 
 class CommandRouter : public rclcpp::Node
@@ -11,7 +12,7 @@ class CommandRouter : public rclcpp::Node
 public:
   CommandRouter();
   ~CommandRouter() override = default;
-  void on_udp_message(const std::string& message);
+  void on_udp_message(const UdpMessage& msg);
 private:
   walker_bridge::CommandMessage parse_message(const std::string& message);
   void on_command(const walker_bridge::CommandMessage& cmd);

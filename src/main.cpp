@@ -25,10 +25,9 @@ private:
   void poll_udp()
   {
     UdpMessage msg;
-    
+
     while (udp_.pop_message(msg)) {
-      std::string data(msg.data, msg.size);
-      command_router_->on_udp_message(data);
+      command_router_->on_udp_message(msg);
     }
   }
 
