@@ -4,6 +4,7 @@
 #include <thread>
 #include <functional>
 #include <string>
+#include <cstdint>
 
 
 class UdpReceiver

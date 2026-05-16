@@ -2,6 +2,8 @@
 #include <iostream>
 
 
+using udp = boost::asio::ip::udp;
+
 UdpReceiver::UdpReceiver(uint16_t port)
   : 
   port_(port),
@@ -15,6 +17,11 @@ UdpReceiver::UdpReceiver(uint16_t port)
 UdpReceiver::~UdpReceiver()
 {
   stop();
+  
+  if (io_thread_.joinable()) {
+    io_thread_.join();
+  }
+
   std::cout << "[UdpReceiver] destroyed" << std::endl;
 }
 
@@ -22,6 +29,17 @@ void UdpReceiver::start()
 {
   std::cout << "[UdpReceiver] start()" << std::endl;
   running_ = true;
+
+  socket_.open(udp::v4());
+  socket_.bind(udp::endpoint(
+    udp::v4(),
+    port_
+  ));
+    io_thread_ = std::thread([this]() {
+    io_context_.run();
+  });
+
+  start_receive();
 }
 
 void UdpReceiver::stop()
@@ -32,6 +50,7 @@ void UdpReceiver::stop()
 
   std::cout << "[UdpReceiver] stop()" << std::endl;
   running_ = false;
+  io_context_.stop();
 }
 
 void UdpReceiver::set_callback(MessageCallback cb)
