@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.8)
-project(walker_bridge_cpp)
+project(udp_ros_bridge)
 
 # C++ standard
 set(CMAKE_CXX_STANDARD 17)

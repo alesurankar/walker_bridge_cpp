@@ -6,7 +6,7 @@
 #include <string>
 #include <cstdint>
 #include <atomic>
-#include "walker_bridge_cpp/protocol/udp_message.hpp"
+#include "udp_ros_bridge/protocol/udp_message.hpp"
 
 
 class UdpReceiver

@@ -3,7 +3,7 @@
 #include <sensor_msgs/msg/joint_state.hpp>
 #include <string>
 #include <memory>
-#include "walker_bridge_cpp/protocol/command_message.hpp"
+#include "udp_ros_bridge/protocol/command_message.hpp"
 
 
 class CommandRouter : public rclcpp::Node

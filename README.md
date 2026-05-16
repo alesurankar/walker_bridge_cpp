@@ -23,7 +23,7 @@ This project serves as a foundation for real-time robot command streaming, enabl
 # Start udp_bridge_node
 ```bash
 cd ~/ros2_ws
-colcon build --packages-select walker_bridge_cpp
+colcon build --packages-select udp_ros_bridge
 source ~/ros2_ws/install/setup.bash
-ros2 run walker_bridge_cpp udp_bridge_node
+ros2 run udp_ros_bridge udp_bridge_node
 ```
