@@ -1,5 +1,7 @@
 #pragma once
-#include "udp_ros_bridge/decoders/command_decoder.hpp"
+#include "udp_ros_bridge/protocol/command_message.hpp"
+#include <optional>
+#include <cstddef>
 
 
 namespace udp_ros_bridge
