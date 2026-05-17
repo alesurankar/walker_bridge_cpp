@@ -30,21 +30,11 @@ namespace udp_ros_bridge
     std::vector<float> positions;
   };
 
-  struct CartesianPose
-  {
-    float x = 0.0f;
-    float y = 0.0f;
-    float z = 0.0f;
-    float roll = 0.0f;
-    float pitch = 0.0f;
-    float yaw = 0.0f;
-  };
-
   // -------------------- payload variant -----------------
   using CommandPayload = std::variant<
     BaseVelocity,
     JointPosition,
-    CartesianPose
+    CartesianPoseCommand
   >;
 
   // -------------------- main message --------------------

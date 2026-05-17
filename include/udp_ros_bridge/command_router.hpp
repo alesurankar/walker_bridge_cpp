@@ -52,7 +52,7 @@ public:
 
       case CommandType::CartesianPose:
         if (pose_cb_) {
-          pose_cb_(std::get<CartesianPose>(cmd.payload));
+          pose_cb_(std::get<CartesianPoseCommand>(cmd.payload));
         }
         break;
 

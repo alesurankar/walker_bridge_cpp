@@ -111,12 +111,18 @@ python3 /home/aleur/ros2_ws/src/udp_ros_bridge/test_tools/udp_sender.py
   "type": "cartesian_pose",
   "priority": 1,
   "payload": {
+    "target_link": "L_wrist",
+    "frame_id": "world",
     "x": 0.3,
     "y": 0.0,
     "z": 1.2,
-    "roll": 0.0,
-    "pitch": 0.5,
-    "yaw": 0.0
+    "qx": 0.0,
+    "qy": 0.0,
+    "qz": 0.0,
+    "qw": 1.0,
+    "position_gain": 1.0,
+    "orientation_gain": 1.0,
+    "is_relative": False
   }
 }
 
