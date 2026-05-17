@@ -1,3 +1,4 @@
+#include <sensor_msgs/msg/joint_state.hpp>
 #include "udp_ros_bridge/udp_bridge_node.hpp"
 #include <chrono>
 #include <thread>
@@ -35,7 +36,10 @@ void UdpBridgeNode::consumer_loop()
     while (udp_.pop_message(msg))
     {
       // STEP 1: decode only
-      auto cmd_opt = command_decoder_.decode(msg);
+      auto cmd_opt = command_decoder_.decode(
+        msg.data,
+        msg.size
+      );
 
       if (!cmd_opt) {
         continue;
@@ -69,7 +73,7 @@ void UdpBridgeNode::consumer_loop()
       }
     }
 
-    std::this_thread::sleep_for(std::chrono::microseconds(100));
+    std::this_thread::sleep_for(std::chrono::milliseconds(1));
   }
 }
 
