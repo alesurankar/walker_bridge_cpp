@@ -23,7 +23,6 @@ add_executable(udp_bridge_node
   src/main.cpp
   src/udp_bridge_node.cpp
   src/udp_receiver.cpp
-  src/command_router.cpp
   src/command_decoder.cpp
 )
 

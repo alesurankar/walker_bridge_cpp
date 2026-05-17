@@ -1,13 +1,13 @@
 #pragma once
-#include <optional>
 #include "udp_ros_bridge/protocol/udp_message.hpp"
 #include "udp_ros_bridge/protocol/command_message.hpp"
+#include <optional>
+#include <cstddef>
 
 
 class CommandDecoder
 {
 public:
-  CommandDecoder() = default;
-  static std::optional<CommandMessage>
-  decode(const UdpMessage& msg);
+  static std::optional<udp_ros_bridge::CommandMessage>
+  decode(const std::byte* data, std::size_t size);
 };
