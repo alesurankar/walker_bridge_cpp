@@ -99,18 +99,33 @@ JsonCommandDecoder::decode(const std::byte* data, std::size_t size)
   else if (type == "cartesian_pose") {
     msg.type = CommandType::CartesianPose;
 
+    const auto& pl = j["payload"];
+
     udp_ros_bridge::CartesianPoseCommand cp;
 
-    cp.x = j["payload"]["x"];
-    cp.y = j["payload"]["y"];
-    cp.z = j["payload"]["z"];
-    cp.qx = j["payload"]["qx"];
-    cp.qy = j["payload"]["qy"];
-    cp.qz = j["payload"]["qz"];
-    cp.qw = j["payload"]["qw"];
+    // --- frame + target ---
+    cp.target_link = pl.value("target_link", "");
+    cp.frame_id    = pl.value("frame_id", "");
 
-    msg.payload = cp;
+    // --- position ---
+    cp.x = pl.value("x", 0.0f);
+    cp.y = pl.value("y", 0.0f);
+    cp.z = pl.value("z", 0.0f);
 
+    // --- orientation ---
+    cp.qx = pl.value("qx", 0.0f);
+    cp.qy = pl.value("qy", 0.0f);
+    cp.qz = pl.value("qz", 0.0f);
+    cp.qw = pl.value("qw", 1.0f);
+
+    // --- gains ---
+    cp.position_gain    = pl.value("position_gain", 1.0f);
+    cp.orientation_gain = pl.value("orientation_gain", 1.0f);
+
+    // --- mode ---
+    cp.is_relative = pl.value("is_relative", false);
+
+    msg.payload = std::move(cp);
     std::cout << "[JSON DECODER] mapped → CartesianPose + payload\n";
   }
 
