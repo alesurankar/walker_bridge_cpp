@@ -47,13 +47,32 @@ void UdpBridgeNode::consumer_loop()
       const auto& cmd = *cmd_opt;
 
       switch (cmd.type) {
+        case udp_ros_bridge::CommandType::BaseVelocity:
+          std::cout << "[DECODE] BaseVelocity" << std::endl;
+          // TODO: handle base velocity if needed
+          break;
+
         case udp_ros_bridge::CommandType::JointPosition:
+          std::cout << "[DECODE] JointPosition → publish" << std::endl;
           publish_joint_state(cmd);
           break;
 
+        case udp_ros_bridge::CommandType::CartesianPose:
+          std::cout << "[DECODE] CartesianPose" << std::endl;
+          // TODO: publish pose
+          break;
+
+        case udp_ros_bridge::CommandType::Stop:
+          std::cout << "[DECODE] Stop command" << std::endl;
+          // TODO: stop robot
+          break;
+
+        case udp_ros_bridge::CommandType::Unknown:
+          std::cout << "[DECODE] WARNING: Unknown command type received" << std::endl;
+          break;
+
         default:
-          std::cout << "[DECODE] unknown type: " 
-            << static_cast<int>(cmd.type) << std::endl;
+          std::cout << "[DECODE] ERROR: Invalid enum value (corrupted or uninitialized)" << std::endl;
           break;
       }
     }
