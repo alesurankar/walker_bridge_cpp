@@ -1,4 +1,5 @@
 #include <rclcpp/rclcpp.hpp>
+#include <sensor_msgs/msg/joint_state.hpp>
 #include "udp_ros_bridge/udp_receiver.hpp"
 #include "udp_ros_bridge/command_decoder.hpp"
 #include "udp_ros_bridge/protocol/command_message.hpp"

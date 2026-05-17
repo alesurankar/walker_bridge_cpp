@@ -29,13 +29,12 @@ UdpBridgeNode::~UdpBridgeNode()
 
 void UdpBridgeNode::consumer_loop()
 {
+  UdpMessage msg;
+
   while (rclcpp::ok() && running_)
   {
-    UdpMessage msg;
-
     while (udp_.pop_message(msg))
     {
-      // STEP 1: decode only
       auto cmd_opt = command_decoder_.decode(
         msg.data,
         msg.size
@@ -47,26 +46,11 @@ void UdpBridgeNode::consumer_loop()
 
       const auto& cmd = *cmd_opt;
 
-      // STEP 2: route in NODE (ROS boundary)
       switch (cmd.type)
       {
         case udp_ros_bridge::CommandType::JointPosition:
-        {
           publish_joint_state(cmd);
           break;
-        }
-
-        case udp_ros_bridge::CommandType::BaseVelocity:
-        {
-          // publish cmd_vel here
-          break;
-        }
-
-        case udp_ros_bridge::CommandType::Stop:
-        {
-          // emergency stop handling
-          break;
-        }
 
         default:
           break;
