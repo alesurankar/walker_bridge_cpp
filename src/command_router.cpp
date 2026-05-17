@@ -30,72 +30,35 @@ void CommandRouter::on_udp_message(const UdpMessage& msg)
 
 void CommandRouter::on_command(const CommandMessage& cmd)
 {
-  RCLCPP_INFO(
-    this->get_logger(),
-    "Routing command type: %s",
-    udp_ros_bridge::command_type_to_string(cmd.type)
-  );
+  // RCLCPP_INFO(
+  //   this->get_logger(),
+  //   "Routing command type: %s",
+  //   udp_ros_bridge::command_type_to_string(cmd.type)
+  // );
 
   using udp_ros_bridge::CommandType;
 
   switch (cmd.type) {
     case CommandType::BaseVelocity:
-      handle_walk_command(cmd);
+      // TODO
       break;
 
     case CommandType::JointPosition:
-      handle_joint_control(cmd);
+      // TODO
       break;
 
     case CommandType::CartesianPose:
-      handle_reach_command(cmd);
+      // TODO
       break;
 
     case CommandType::Stop:
-      handle_estop_command(cmd);
+      // TODO
       break;
 
     default:
       RCLCPP_WARN(this->get_logger(), "Unknown command type");
       break;
   }
-}
-
-void CommandRouter::handle_joint_control(const CommandMessage& cmd)
-{
-  (void)cmd;
-  RCLCPP_INFO(this->get_logger(), "Joint control command received");
-}
-
-void CommandRouter::handle_walk_command(const CommandMessage& cmd)
-{
-  if (!std::holds_alternative<udp_ros_bridge::BaseVelocity>(cmd.payload)) {
-    RCLCPP_WARN(this->get_logger(), "Invalid payload for BaseVelocity");
-    return;
-  }
-
-  const auto& vel =
-    std::get<udp_ros_bridge::BaseVelocity>(cmd.payload);
-
-  RCLCPP_INFO(
-    this->get_logger(),
-    "Base velocity command: vx=%.3f vy=%.3f yaw=%.3f",
-    vel.vx,
-    vel.vy,
-    vel.yaw_rate
-  );
-}
-
-void CommandRouter::handle_reach_command(const CommandMessage& cmd)
-{
-  (void)cmd;
-  RCLCPP_INFO(this->get_logger(), "Reach command received");
-}
-
-void CommandRouter::handle_estop_command(const CommandMessage& cmd)
-{
-  (void)cmd;
-  RCLCPP_WARN(this->get_logger(), "EMERGENCY STOP command");
 }
 
 void CommandRouter::publish_joint_state(const sensor_msgs::msg::JointState& msg)

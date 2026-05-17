@@ -1,20 +1,16 @@
 #pragma once
-#include <string>
-#include <vector>
 #include <variant>
 #include <cstdint>
 
 
 namespace udp_ros_bridge
 {
-  enum class CommandType
+  enum class CommandType : uint8_t
   {
     BaseVelocity,
     JointPosition,
     CartesianPose,
-    WholeBody,
     Stop,
-    Custom,
     Unknown
   };
 
@@ -25,10 +21,11 @@ namespace udp_ros_bridge
     float vy = 0.0f;
     float yaw_rate = 0.0f;
   };
-
+  
   struct JointPosition
   {
-    std::vector<float> positions;
+    float data[32];
+    uint8_t count;
   };
 
   struct CartesianPose
@@ -54,38 +51,11 @@ namespace udp_ros_bridge
     uint64_t sender_timestamp = 0;
     uint64_t receive_timestamp = 0;
     
-    std::string robot_id;
+    uint32_t robot_id;
     
     CommandType type = CommandType::Unknown;
     uint8_t priority = 0;
 
     CommandPayload payload;
   };
-  
-  // -------------------- helpers ------------------------
-  inline CommandType command_type_from_string(const std::string& s)
-  {
-    if (s == "base_velocity") return CommandType::BaseVelocity;
-    if (s == "joint_position") return CommandType::JointPosition;
-    if (s == "cartesian_pose") return CommandType::CartesianPose;
-    if (s == "whole_body") return CommandType::WholeBody;
-    if (s == "stop") return CommandType::Stop;
-    if (s == "custom") return CommandType::Custom;
-    return CommandType::Unknown;
-  }
-
-  inline constexpr const char* command_type_to_string(CommandType t)
-  {
-    switch (t)
-    {
-      case CommandType::BaseVelocity:  return "base_velocity";
-      case CommandType::JointPosition: return "joint_position";
-      case CommandType::CartesianPose: return "cartesian_pose";
-      case CommandType::WholeBody:     return "whole_body";
-      case CommandType::Stop:          return "stop";
-      case CommandType::Custom:        return "custom";
-      case CommandType::Unknown:       return "unknown";
-      default:                         return "unknown";
-    }
-  }
 }
