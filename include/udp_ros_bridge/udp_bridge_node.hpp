@@ -18,7 +18,7 @@ private:
   void consumer_loop();
   void publish_joint_state(const udp_ros_bridge::JointPosition& jp);
   void publish_base_velocity(const udp_ros_bridge::BaseVelocity& bv);
-  void publish_cartesian_pose(const udp_ros_bridge::CartesianPose& cp);
+  void publish_cartesian_pose(const udp_ros_bridge::CartesianPoseCommand& cp);
   void publish_stop();
 private:
   UdpReceiver udp_;

@@ -12,7 +12,7 @@ class CommandRouter
 public:
   using JointCallback = std::function<void(const JointPosition&)>;
   using BaseCallback  = std::function<void(const BaseVelocity&)>;
-  using PoseCallback  = std::function<void(const CartesianPose&)>;
+  using PoseCallback  = std::function<void(const CartesianPoseCommand&)>;
   using StopCallback  = std::function<void()>;
 
   void set_joint_callback(JointCallback cb)

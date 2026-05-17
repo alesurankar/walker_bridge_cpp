@@ -99,14 +99,15 @@ JsonCommandDecoder::decode(const std::byte* data, std::size_t size)
   else if (type == "cartesian_pose") {
     msg.type = CommandType::CartesianPose;
 
-    CartesianPose cp;
+    udp_ros_bridge::CartesianPoseCommand cp;
 
     cp.x = j["payload"]["x"];
     cp.y = j["payload"]["y"];
     cp.z = j["payload"]["z"];
-    cp.roll = j["payload"]["roll"];
-    cp.pitch = j["payload"]["pitch"];
-    cp.yaw = j["payload"]["yaw"];
+    cp.qx = j["payload"]["qx"];
+    cp.qy = j["payload"]["qy"];
+    cp.qz = j["payload"]["qz"];
+    cp.qw = j["payload"]["qw"];
 
     msg.payload = cp;
 

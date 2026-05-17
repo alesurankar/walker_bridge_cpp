@@ -1,4 +1,5 @@
 #pragma once
+#include "udp_ros_bridge/protocol/cartesian_pose_command.hpp"
 #include <variant>
 #include <cstdint>
 #include <vector>

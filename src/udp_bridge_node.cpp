@@ -23,7 +23,7 @@ UdpBridgeNode::UdpBridgeNode()
     });
 
   router_.set_pose_callback(
-    [this](const udp_ros_bridge::CartesianPose& cp) {
+    [this](const udp_ros_bridge::CartesianPoseCommand& cp) {
       publish_cartesian_pose(cp);
     });
 
@@ -91,13 +91,23 @@ void UdpBridgeNode::publish_base_velocity(const udp_ros_bridge::BaseVelocity& bv
   // publish to Twist or custom topic later
 }
 
-void UdpBridgeNode::publish_cartesian_pose(const udp_ros_bridge::CartesianPose& cp)
+void UdpBridgeNode::publish_cartesian_pose(const udp_ros_bridge::CartesianPoseCommand& cp)
 {
   RCLCPP_INFO(this->get_logger(),
-    "Cartesian pose: x=%.2f y=%.2f z=%.2f r=%.2f p=%.2f y=%.2f",
+    "\n[CartesianPoseCommand]\n"
+    "  target_link: %s\n"
+    "  frame_id: %s\n"
+    "  position: (%.2f %.2f %.2f)\n"
+    "  orientation (quat): (%.2f %.2f %.2f %.2f)\n"
+    "  gains: pos=%.2f ori=%.2f\n"
+    "  is_relative: %s",
+    cp.target_link.c_str(),
+    cp.frame_id.c_str(),
     cp.x, cp.y, cp.z,
-    cp.roll, cp.pitch, cp.yaw);
-  // later: geometry_msgs::msg::PoseStamped
+    cp.qx, cp.qy, cp.qz, cp.qw,
+    cp.position_gain,
+    cp.orientation_gain,
+    cp.is_relative ? "true" : "false");
 }
 
 void UdpBridgeNode::publish_stop()
