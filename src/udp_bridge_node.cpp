@@ -88,7 +88,28 @@ void UdpBridgeNode::publish_joint_state(const udp_ros_bridge::CommandMessage& cm
   const auto& jp =
     std::get<udp_ros_bridge::JointPosition>(cmd.payload);
 
-  msg.position.assign(jp.data, jp.data + jp.count);
+  msg.name = jp.names;
+  msg.position.resize(jp.positions.size());
+  for (size_t i = 0; i < jp.positions.size(); i++) {
+    msg.position[i] = static_cast<double>(jp.positions[i]);
+  }
+  msg.header.stamp = this->now();
+
+  RCLCPP_INFO(this->get_logger(),
+    "Publishing JointState: %zu joints",
+    msg.name.size());
+
+  for (size_t i = 0; i < msg.name.size(); i++) {
+    RCLCPP_INFO(this->get_logger(),
+      "  %s = %.4f",
+      msg.name[i].c_str(),
+      msg.position[i]);
+  }
+
+  RCLCPP_DEBUG(this->get_logger(),
+    "Stamp: %u.%u",
+    msg.header.stamp.sec,
+    msg.header.stamp.nanosec);
 
   joint_pub_->publish(msg);
 }

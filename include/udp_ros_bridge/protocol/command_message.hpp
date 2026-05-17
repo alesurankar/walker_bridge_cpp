@@ -1,6 +1,8 @@
 #pragma once
 #include <variant>
 #include <cstdint>
+#include <vector>
+#include <string>
 
 
 namespace udp_ros_bridge
@@ -24,8 +26,8 @@ namespace udp_ros_bridge
   
   struct JointPosition
   {
-    float data[32];
-    uint8_t count;
+    std::vector<std::string> names;
+    std::vector<float> positions;
   };
 
   struct CartesianPose

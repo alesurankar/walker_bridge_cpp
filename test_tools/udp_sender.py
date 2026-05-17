@@ -16,15 +16,76 @@ while True:
     yaw_rate = 0.2 * math.cos(t)
 
     msg = {
-        "timestamp": int((t - start) * 1000),
-        "robot_id": 1,
-        "type": "joint_position",
-        "priority": 1,
-        "payload": {
-            "vx": vx,
-            "vy": 0.0,
-            "yaw_rate": yaw_rate
-        }
+      "timestamp": int((t - start) * 1000),
+      "robot_id": 1,
+      "type": "joint_position",
+      "priority": 1,
+      "payload": {
+        "names": [
+          "waist_yaw_joint",
+          "waist_pitch_joint",
+          "head_yaw_joint",
+          "head_pitch_joint",
+          "L_shoulder_pitch_joint",
+          "L_shoulder_roll_joint",
+          "L_shoulder_yaw_joint",
+          "L_elbow_roll_joint",
+          "L_elbow_yaw_joint",
+          "L_wrist_pitch_joint",
+          "L_wrist_roll_joint",
+          "R_shoulder_pitch_joint",
+          "R_shoulder_roll_joint",
+          "R_shoulder_yaw_joint",
+          "R_elbow_roll_joint",
+          "R_elbow_yaw_joint",
+          "R_wrist_pitch_joint",
+          "R_wrist_roll_joint",
+          "L_hip_roll_joint",
+          "L_hip_yaw_joint",
+          "L_hip_pitch_joint",
+          "L_knee_pitch_joint",
+          "L_ankle_pitch_joint",
+          "L_ankle_roll_joint",
+          "R_hip_roll_joint",
+          "R_hip_yaw_joint",
+          "R_hip_pitch_joint",
+          "R_knee_pitch_joint",
+          "R_ankle_pitch_joint",
+          "R_ankle_roll_joint"
+        ],
+        "positions": [
+          0.0,
+          0.1,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
     }
 
     data = json.dumps(msg).encode("utf-8")
