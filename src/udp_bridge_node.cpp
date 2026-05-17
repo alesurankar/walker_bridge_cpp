@@ -94,8 +94,9 @@ void UdpBridgeNode::publish_base_velocity(const udp_ros_bridge::BaseVelocity& bv
 void UdpBridgeNode::publish_cartesian_pose(const udp_ros_bridge::CartesianPose& cp)
 {
   RCLCPP_INFO(this->get_logger(),
-    "Cartesian pose: x=%.2f y=%.2f z=%.2f",
-    cp.x, cp.y, cp.z);
+    "Cartesian pose: x=%.2f y=%.2f z=%.2f r=%.2f p=%.2f y=%.2f",
+    cp.x, cp.y, cp.z,
+    cp.roll, cp.pitch, cp.yaw);
   // later: geometry_msgs::msg::PoseStamped
 }
 

@@ -98,7 +98,19 @@ JsonCommandDecoder::decode(const std::byte* data, std::size_t size)
   // ================= CARTESIAN POSE =================
   else if (type == "cartesian_pose") {
     msg.type = CommandType::CartesianPose;
-    std::cout << "[JSON DECODER] mapped → CartesianPose\n";
+
+    CartesianPose cp;
+
+    cp.x = j["payload"]["x"];
+    cp.y = j["payload"]["y"];
+    cp.z = j["payload"]["z"];
+    cp.roll = j["payload"]["roll"];
+    cp.pitch = j["payload"]["pitch"];
+    cp.yaw = j["payload"]["yaw"];
+
+    msg.payload = cp;
+
+    std::cout << "[JSON DECODER] mapped → CartesianPose + payload\n";
   }
 
   // ================= STOP =================
