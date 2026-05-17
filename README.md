@@ -37,43 +37,11 @@ ros2 run udp_ros_bridge udp_bridge_node
 
 # desired architecture
 ```text
-                ┌──────────────────────┐
-                │  UDP Sender (Python) │
-                └─────────┬────────────┘
-                          │
-                          ▼
-        ┌──────────────────────────────────┐
-        │        Transport Layer           │
-        │        UdpReceiver               │
-        └──────────────┬───────────────────┘
-                       │ raw packet
-                       ▼
-        ┌──────────────────────────────────┐
-        │        Decode Layer              │
-        │  JSON → CommandMessage           │
-        │  (parse_message)                 │
-        └──────────────┬───────────────────┘
-                       │ structured command
-                       ▼
-        ┌──────────────────────────────────┐
-        │        Router Layer              │
-        │  CommandRouter                   │
-        │  - switch(CommandType)           │
-        └──────────────┬───────────────────┘
-                       │
-          ┌────────────┼────────────┐
-          ▼            ▼            ▼
-   ┌────────────┐ ┌──────────┐ ┌────────────┐
-   │ Safety     │ │ State    │ │ Arbitration│
-   │ Filter     │ │ Estimator│ │ (priority) │
-   └─────┬──────┘ └────┬─────┘ └────┬───────┘
-         │             │            │
-         └──────┬──────┴──────┬────┘
-                ▼             ▼
-        ┌────────────────────────────┐
-        │   Actuation Layer          │
-        │  /cmd_vel, joint_states    │
-        └──────────┬─────────────────┘
-                   ▼
-         Robot controllers / hardware
+[ UDP Receiver ]
+       ↓
+[ SPSC Queue ]
+       ↓
+[ Decoder (pluggable) ]
+       ↓
+[ ROS Publisher Mapper ]
 ```

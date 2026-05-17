@@ -1,5 +1,5 @@
 #pragma once
-#include <string_view>
+#include <cstddef>
 #include <optional>
 #include "udp_ros_bridge/protocol/command_message.hpp"
 
@@ -9,6 +9,6 @@ namespace udp_ros_bridge
   {
   public:
     static std::optional<CommandMessage>
-    decode(std::string_view message);
+    decode(const std::byte* data, std::size_t size);
   };
 }

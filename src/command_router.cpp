@@ -15,10 +15,9 @@ CommandRouter::CommandRouter()
 
 void CommandRouter::on_udp_message(const UdpMessage& msg)
 {
-  RCLCPP_INFO(this->get_logger(), "Received UDP message");
-
   auto cmd = udp_ros_bridge::CommandDecoder::decode(
-    std::string_view(msg.data, msg.size)
+      msg.data,
+      msg.size
   );
 
   if (!cmd) {
