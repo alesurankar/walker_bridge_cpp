@@ -74,15 +74,11 @@ bool UdpReceiver::pop_message(UdpMessage& out_msg)
 
 void UdpReceiver::start_receive()
 {
-  std::cout << "=============================" << std::endl;
-  std::cout << "[UdpReceiver] start_receive()" << std::endl;
   socket_.async_receive_from(
     boost::asio::buffer(buffer_),
     remote_endpoint_,
     [this](const boost::system::error_code& error, std::size_t bytes_received)
     {
-      // std::cout << "[UdpReceiver] CALLBACK FIRED, bytes=" 
-      //       << bytes_received << std::endl;
       handle_receive(error, bytes_received);
 
       if (running_) {
@@ -122,6 +118,7 @@ void UdpReceiver::handle_receive(const boost::system::error_code& error, std::si
     std::cout << "[QUEUE] DROP" << std::endl;
   }
   else {
+    std::cout << "==============================\n";
     std::cout << "[QUEUE] push OK, size=" << msg.size << std::endl;
   }
 }

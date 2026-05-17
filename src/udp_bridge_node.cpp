@@ -64,6 +64,14 @@ void UdpBridgeNode::consumer_loop()
   }
 }
 
+void UdpBridgeNode::publish_base_velocity(const udp_ros_bridge::BaseVelocity& bv)
+{
+  RCLCPP_INFO(this->get_logger(),
+    "Base velocity: vx=%.2f vy=%.2f yaw=%.2f",
+    bv.vx, bv.vy, bv.yaw_rate);
+  // publish to Twist or custom topic later
+}
+
 void UdpBridgeNode::publish_joint_state(const udp_ros_bridge::JointPosition& jp)
 {
   sensor_msgs::msg::JointState msg;
@@ -81,14 +89,6 @@ void UdpBridgeNode::publish_joint_state(const udp_ros_bridge::JointPosition& jp)
     msg.name.size());
 
   joint_pub_->publish(msg);
-}
-
-void UdpBridgeNode::publish_base_velocity(const udp_ros_bridge::BaseVelocity& bv)
-{
-  RCLCPP_INFO(this->get_logger(),
-    "Base velocity: vx=%.2f vy=%.2f yaw=%.2f",
-    bv.vx, bv.vy, bv.yaw_rate);
-  // publish to Twist or custom topic later
 }
 
 void UdpBridgeNode::publish_cartesian_pose(const udp_ros_bridge::CartesianPoseCommand& cp)

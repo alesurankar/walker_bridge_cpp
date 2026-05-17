@@ -2,6 +2,7 @@
 #include <nlohmann/json.hpp>
 #include <iostream>
 
+
 using json = nlohmann::json;
 
 namespace udp_ros_bridge
@@ -10,10 +11,6 @@ namespace udp_ros_bridge
 std::optional<CommandMessage>
 JsonCommandDecoder::decode(const std::byte* data, std::size_t size)
 {
-  std::cout << "\n==============================\n";
-  std::cout << "[JSON DECODER] decode() called\n";
-  std::cout << "[JSON DECODER] size = " << size << "\n";
-  
   if (!data || size == 0) {
     std::cout << "[JSON DECODER] invalid input\n";
     return std::nullopt;
@@ -30,20 +27,14 @@ JsonCommandDecoder::decode(const std::byte* data, std::size_t size)
     std::cout << "[JSON DECODER] parse failed: " << e.what() << std::endl;
     return std::nullopt;
   }
-
-  std::cout << "[JSON DECODER] parse OK\n";
   CommandMessage msg;
 
-  // ---- timestamp ----
   msg.sender_timestamp = j.value("timestamp", 0);
   std::cout << "[JSON DECODER] timestamp = " << msg.sender_timestamp << "\n";
-  // ---- robot_id ----
   msg.robot_id = j.value("robot_id", 0);
   std::cout << "[JSON DECODER] robot_id = " << msg.robot_id << "\n";
-  // ---- priority ----
   msg.priority = j.value("priority", 0);
   std::cout << "[JSON DECODER] priority = " << (int)msg.priority << "\n";
-  // ---- type ----
   std::string type = j.value("type", "unknown");
   std::cout << "[JSON DECODER] type string = " << type << "\n";
 
@@ -140,10 +131,6 @@ JsonCommandDecoder::decode(const std::byte* data, std::size_t size)
     msg.type = CommandType::Unknown;
     std::cout << "[JSON DECODER] mapped → UNKNOWN\n";
   }
-
-  std::cout << "[JSON DECODER] FINAL enum = " << (int)msg.type << "\n";
-  std::cout << "==============================\n";
-
   return msg;
 }
 

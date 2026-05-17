@@ -17,6 +17,20 @@ python3 /home/aleur/ros2_ws/src/udp_ros_bridge/test_tools/udp_sender.py
 
 # Supported message types
 ```python
+
+# Base velocity command
+{
+  "timestamp": int((t - start) * 1000),
+  "robot_id": 1,
+  "type": "base_velocity",
+  "priority": 1,
+  "payload": {
+    "vx": 0.5,
+    "vy": 0.0,
+    "yaw_rate": 0.2
+  }
+}
+
 # Joint position command
 {
   "timestamp": int((t - start) * 1000),
@@ -88,19 +102,6 @@ python3 /home/aleur/ros2_ws/src/udp_ros_bridge/test_tools/udp_sender.py
       0.0,
       0.0
     ]
-  }
-}
-
-# Base velocity command
-{
-  "timestamp": int((t - start) * 1000),
-  "robot_id": 1,
-  "type": "base_velocity",
-  "priority": 1,
-  "payload": {
-    "vx": 0.5,
-    "vy": 0.0,
-    "yaw_rate": 0.2
   }
 }
 
