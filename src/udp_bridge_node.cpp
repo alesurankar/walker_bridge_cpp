@@ -12,6 +12,26 @@ UdpBridgeNode::UdpBridgeNode()
   joint_pub_ = this->create_publisher<sensor_msgs::msg::JointState>(
     "/joint_states", 10);
 
+  router_.set_joint_callback(
+    [this](const udp_ros_bridge::JointPosition& jp) {
+      publish_joint_state(jp);
+    });
+
+  router_.set_base_callback(
+    [this](const udp_ros_bridge::BaseVelocity& bv) {
+      publish_base_velocity(bv);
+    });
+
+  router_.set_pose_callback(
+    [this](const udp_ros_bridge::CartesianPose& cp) {
+      publish_cartesian_pose(cp);
+    });
+
+  router_.set_stop_callback(
+    [this]() {
+      publish_stop();
+    });
+
   udp_.start();
   running_ = true;
 
@@ -29,87 +49,57 @@ UdpBridgeNode::~UdpBridgeNode()
 
 void UdpBridgeNode::consumer_loop()
 {
-  std::cout << "[CONSUMER] started" << std::endl;
   UdpMessage msg;
 
   while (rclcpp::ok() && running_) {
     while (udp_.pop_message(msg)) {
-      std::cout << "[CONSUMER] GOT MSG size=" << msg.size << std::endl;
-      auto cmd_opt = udp_ros_bridge::JsonCommandDecoder::decode(
-        msg.data, msg.size);
+      auto cmd_opt = decoder_.decode(msg.data, msg.size);
 
       if (!cmd_opt) {
-        std::cout << "[DECODE] failed" << std::endl;
         continue;
       }
-      std::cout << "[DECODE] success" << std::endl;
-
-      const auto& cmd = *cmd_opt;
-
-      switch (cmd.type) {
-        case udp_ros_bridge::CommandType::BaseVelocity:
-          std::cout << "[DECODE] BaseVelocity" << std::endl;
-          // TODO: handle base velocity if needed
-          break;
-
-        case udp_ros_bridge::CommandType::JointPosition:
-          std::cout << "[DECODE] JointPosition → publish" << std::endl;
-          publish_joint_state(cmd);
-          break;
-
-        case udp_ros_bridge::CommandType::CartesianPose:
-          std::cout << "[DECODE] CartesianPose" << std::endl;
-          // TODO: publish pose
-          break;
-
-        case udp_ros_bridge::CommandType::Stop:
-          std::cout << "[DECODE] Stop command" << std::endl;
-          // TODO: stop robot
-          break;
-
-        case udp_ros_bridge::CommandType::Unknown:
-          std::cout << "[DECODE] WARNING: Unknown command type received" << std::endl;
-          break;
-
-        default:
-          std::cout << "[DECODE] ERROR: Invalid enum value (corrupted or uninitialized)" << std::endl;
-          break;
-      }
+      router_.route(*cmd_opt);
     }
-
     std::this_thread::sleep_for(std::chrono::milliseconds(1));
   }
 }
 
-void UdpBridgeNode::publish_joint_state(const udp_ros_bridge::CommandMessage& cmd)
+void UdpBridgeNode::publish_joint_state(const udp_ros_bridge::JointPosition& jp)
 {
   sensor_msgs::msg::JointState msg;
 
-  const auto& jp =
-    std::get<udp_ros_bridge::JointPosition>(cmd.payload);
-
+  msg.header.stamp = this->now();
   msg.name = jp.names;
   msg.position.resize(jp.positions.size());
+
   for (size_t i = 0; i < jp.positions.size(); i++) {
     msg.position[i] = static_cast<double>(jp.positions[i]);
   }
-  msg.header.stamp = this->now();
 
   RCLCPP_INFO(this->get_logger(),
     "Publishing JointState: %zu joints",
     msg.name.size());
 
-  for (size_t i = 0; i < msg.name.size(); i++) {
-    RCLCPP_INFO(this->get_logger(),
-      "  %s = %.4f",
-      msg.name[i].c_str(),
-      msg.position[i]);
-  }
-
-  RCLCPP_DEBUG(this->get_logger(),
-    "Stamp: %u.%u",
-    msg.header.stamp.sec,
-    msg.header.stamp.nanosec);
-
   joint_pub_->publish(msg);
+}
+
+void UdpBridgeNode::publish_base_velocity(const udp_ros_bridge::BaseVelocity& bv)
+{
+  RCLCPP_INFO(this->get_logger(),
+    "Base velocity: vx=%.2f vy=%.2f yaw=%.2f",
+    bv.vx, bv.vy, bv.yaw_rate);
+  // publish to Twist or custom topic later
+}
+
+void UdpBridgeNode::publish_cartesian_pose(const udp_ros_bridge::CartesianPose& cp)
+{
+  RCLCPP_INFO(this->get_logger(),
+    "Cartesian pose: x=%.2f y=%.2f z=%.2f",
+    cp.x, cp.y, cp.z);
+  // later: geometry_msgs::msg::PoseStamped
+}
+
+void UdpBridgeNode::publish_stop()
+{
+  RCLCPP_WARN(this->get_logger(), "STOP command received");
 }
