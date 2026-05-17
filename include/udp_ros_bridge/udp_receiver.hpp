@@ -1,12 +1,12 @@
 #pragma once
 #include <boost/asio.hpp>
-#include <boost/lockfree/queue.hpp>
 #include <array>
 #include <thread>
 #include <string>
 #include <cstdint>
 #include <atomic>
 #include "udp_ros_bridge/protocol/udp_message.hpp"
+#include "udp_ros_bridge/protocol/spsc_queue.hpp"
 
 
 class UdpReceiver
@@ -29,6 +29,8 @@ private:
   boost::asio::ip::udp::endpoint remote_endpoint_;
   std::array<char, BUFFER_SIZE> buffer_;
   std::thread io_thread_;
-  boost::lockfree::queue<UdpMessage, boost::lockfree::capacity<1024>> queue_;
+  SPSCQueue<UdpMessage, 4096> queue_;
   std::atomic<bool> running_{false};
+  std::atomic<uint64_t> drop_count_{0};
+  static constexpr std::size_t MAX_MSG_SIZE = sizeof(UdpMessage::data);
 };

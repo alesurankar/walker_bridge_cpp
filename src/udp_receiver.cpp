@@ -102,27 +102,20 @@ void UdpReceiver::handle_receive(const boost::system::error_code& error, std::si
   }
 
   UdpMessage msg;
-  auto now = std::chrono::steady_clock::now();
+  const auto now = std::chrono::steady_clock::now();
   msg.receive_timestamp_ns =
-    std::chrono::duration_cast<std::chrono::nanoseconds>(now.time_since_epoch()).count();
+    std::chrono::duration_cast<std::chrono::nanoseconds>(
+      now.time_since_epoch()).count();
 
-  constexpr std::size_t MAX_MSG_SIZE = sizeof(msg.data);
+  const std::size_t size = (bytes_received > MAX_MSG_SIZE)
+    ? MAX_MSG_SIZE
+    : bytes_received;
 
-  if (bytes_received > MAX_MSG_SIZE) {
-    std::cerr << "[UdpReceiver] UDP packet truncated ("
-              << bytes_received
-              << " bytes > "
-              << MAX_MSG_SIZE
-              << ")\n";
-  }
+  msg.size = static_cast<uint16_t>(size);
 
-  msg.size = static_cast<uint16_t>(
-    std::min<std::size_t>(bytes_received, MAX_MSG_SIZE)
-  );
-
-  std::memcpy(msg.data, buffer_.data(), msg.size);
+  std::memcpy(msg.data, buffer_.data(), size);
 
   if (!queue_.push(msg)) {
-    std::cerr << "[UdpReceiver] queue full, dropping message\n";
+    drop_count_.fetch_add(1, std::memory_order_relaxed);
   }
 }
