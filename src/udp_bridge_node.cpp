@@ -29,30 +29,34 @@ UdpBridgeNode::~UdpBridgeNode()
 
 void UdpBridgeNode::consumer_loop()
 {
+  std::cout << "[CONSUMER] started" << std::endl;
   UdpMessage msg;
 
-  while (rclcpp::ok() && running_)
-  {
-    while (udp_.pop_message(msg))
-    {
-      auto cmd_opt = command_decoder_.decode(
-        msg.data,
-        msg.size
-      );
+  while (rclcpp::ok() && running_) {
+    while (udp_.pop_message(msg)) {
+      std::cout << "[CONSUMER] GOT MSG size=" << msg.size << std::endl;
+      auto cmd_opt = command_decoder_.decode(msg.data, msg.size);
 
       if (!cmd_opt) {
+        std::cout << "[DECODE] failed" << std::endl;
         continue;
       }
+      std::cout << "[DECODE] success" << std::endl;
 
       const auto& cmd = *cmd_opt;
 
-      switch (cmd.type)
-      {
+      switch (cmd.type) {
         case udp_ros_bridge::CommandType::JointPosition:
           publish_joint_state(cmd);
           break;
 
+        case udp_ros_bridge::CommandType::BaseVelocity:
+          publish_base_velocity(cmd);
+          break;
+
         default:
+          std::cout << "[DECODE] unknown type: " 
+            << static_cast<int>(cmd.type) << std::endl;
           break;
       }
     }

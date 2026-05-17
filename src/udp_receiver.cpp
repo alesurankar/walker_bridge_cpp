@@ -81,6 +81,8 @@ void UdpReceiver::start_receive()
     remote_endpoint_,
     [this](const boost::system::error_code& error, std::size_t bytes_received)
     {
+      // std::cout << "[UdpReceiver] CALLBACK FIRED, bytes=" 
+      //       << bytes_received << std::endl;
       handle_receive(error, bytes_received);
 
       if (running_) {
@@ -117,5 +119,9 @@ void UdpReceiver::handle_receive(const boost::system::error_code& error, std::si
 
   if (!queue_.push(msg)) {
     drop_count_.fetch_add(1, std::memory_order_relaxed);
+    std::cout << "[QUEUE] DROP" << std::endl;
+  }
+  else {
+    std::cout << "[QUEUE] push OK, size=" << msg.size << std::endl;
   }
 }
