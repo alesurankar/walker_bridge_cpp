@@ -17,7 +17,7 @@ while True:
 
     msg = {
         "timestamp": int((t - start) * 1000),
-        "robot_id": "humanoid_01",
+        "robot_id": 1,
         "type": "base_velocity",
         "priority": 1,
         "payload": {
