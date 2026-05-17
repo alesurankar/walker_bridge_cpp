@@ -35,7 +35,8 @@ void UdpBridgeNode::consumer_loop()
   while (rclcpp::ok() && running_) {
     while (udp_.pop_message(msg)) {
       std::cout << "[CONSUMER] GOT MSG size=" << msg.size << std::endl;
-      auto cmd_opt = command_decoder_.decode(msg.data, msg.size);
+      auto cmd_opt = udp_ros_bridge::JsonCommandDecoder::decode(
+        msg.data, msg.size);
 
       if (!cmd_opt) {
         std::cout << "[DECODE] failed" << std::endl;
@@ -48,10 +49,6 @@ void UdpBridgeNode::consumer_loop()
       switch (cmd.type) {
         case udp_ros_bridge::CommandType::JointPosition:
           publish_joint_state(cmd);
-          break;
-
-        case udp_ros_bridge::CommandType::BaseVelocity:
-          publish_base_velocity(cmd);
           break;
 
         default:

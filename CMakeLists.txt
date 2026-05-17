@@ -14,6 +14,7 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(sensor_msgs REQUIRED)
+find_package(nlohmann_json REQUIRED)
 find_package(Boost REQUIRED COMPONENTS system)
 find_package(Threads REQUIRED)
 
@@ -23,11 +24,13 @@ add_executable(udp_bridge_node
   src/udp_bridge_node.cpp
   src/udp_receiver.cpp
   src/command_decoder.cpp
+  src/json_command_decoder.cpp
 )
 
 ament_target_dependencies(udp_bridge_node
   rclcpp
   sensor_msgs
+  nlohmann_json
 )
 
 # Proper Boost linking
