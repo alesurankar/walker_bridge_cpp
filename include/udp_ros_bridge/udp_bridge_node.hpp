@@ -1,6 +1,5 @@
 #include <rclcpp/rclcpp.hpp>
 #include <sensor_msgs/msg/joint_state.hpp>
-#include <moveit/move_group_interface/move_group_interface.hpp>
 
 #include "udp_ros_bridge/udp_receiver.hpp"
 #include "udp_ros_bridge/command_router.hpp"
@@ -30,5 +29,4 @@ private:
   rclcpp::Publisher<sensor_msgs::msg::JointState>::SharedPtr joint_pub_;
   std::thread consumer_thread_;
   std::atomic<bool> running_{false};
-  std::shared_ptr<moveit::planning_interface::MoveGroupInterface> move_group_;
 };
