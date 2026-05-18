@@ -14,6 +14,8 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(sensor_msgs REQUIRED)
+find_package(geometry_msgs REQUIRED)
+find_package(std_msgs REQUIRED)
 find_package(nlohmann_json REQUIRED)
 find_package(Boost REQUIRED COMPONENTS system)
 find_package(Threads REQUIRED)
@@ -29,6 +31,8 @@ add_executable(udp_bridge_node
 ament_target_dependencies(udp_bridge_node
   rclcpp
   sensor_msgs
+  geometry_msgs
+  std_msgs
   nlohmann_json
 )
 

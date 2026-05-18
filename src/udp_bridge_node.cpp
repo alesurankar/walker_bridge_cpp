@@ -1,4 +1,3 @@
-#include <sensor_msgs/msg/joint_state.hpp>
 #include "udp_ros_bridge/udp_bridge_node.hpp"
 #include <chrono>
 #include <thread>
@@ -9,8 +8,17 @@ UdpBridgeNode::UdpBridgeNode()
   Node("udp_bridge_node"),
   udp_(17945)
 {
+  base_pub_ = this->create_publisher<geometry_msgs::msg::Twist>(
+    "/walker/base_velocity", 10);
+  
   joint_pub_ = this->create_publisher<sensor_msgs::msg::JointState>(
-    "/joint_states", 10);
+    "/walker/joint_states", 10);
+
+  pose_pub_ = this->create_publisher<geometry_msgs::msg::PoseStamped>(
+    "/walker/cartesian_pose_command", 10);
+
+  stop_pub_ = this->create_publisher<std_msgs::msg::Empty>(
+    "/walker/stop", 10);
 
   router_.set_joint_callback(
     [this](const udp_ros_bridge::JointPosition& jp) {
@@ -69,7 +77,14 @@ void UdpBridgeNode::publish_base_velocity(const udp_ros_bridge::BaseVelocity& bv
   RCLCPP_INFO(this->get_logger(),
     "Base velocity: vx=%.2f vy=%.2f yaw=%.2f",
     bv.vx, bv.vy, bv.yaw_rate);
-  // publish to Twist or custom topic later
+    
+  geometry_msgs::msg::Twist msg;
+
+  msg.linear.x = bv.vx;
+  msg.linear.y = bv.vy;
+  msg.angular.z = bv.yaw_rate;
+
+  base_pub_->publish(msg);
 }
 
 void UdpBridgeNode::publish_joint_state(const udp_ros_bridge::JointPosition& jp)
@@ -108,9 +123,28 @@ void UdpBridgeNode::publish_cartesian_pose(const udp_ros_bridge::CartesianPoseCo
     cp.position_gain,
     cp.orientation_gain,
     cp.is_relative ? "true" : "false");
+
+  geometry_msgs::msg::PoseStamped msg;
+
+  msg.header.stamp = this->now();
+  msg.header.frame_id = cp.frame_id;
+
+  msg.pose.position.x = cp.x;
+  msg.pose.position.y = cp.y;
+  msg.pose.position.z = cp.z;
+
+  msg.pose.orientation.x = cp.qx;
+  msg.pose.orientation.y = cp.qy;
+  msg.pose.orientation.z = cp.qz;
+  msg.pose.orientation.w = cp.qw;
+
+  pose_pub_->publish(msg);
 }
 
 void UdpBridgeNode::publish_stop()
 {
   RCLCPP_WARN(this->get_logger(), "STOP command received");
+
+  std_msgs::msg::Empty msg;
+  stop_pub_->publish(msg);
 }

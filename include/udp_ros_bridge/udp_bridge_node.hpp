@@ -1,5 +1,8 @@
 #include <rclcpp/rclcpp.hpp>
 #include <sensor_msgs/msg/joint_state.hpp>
+#include <geometry_msgs/msg/twist.hpp>
+#include <geometry_msgs/msg/pose_stamped.hpp>
+#include <std_msgs/msg/empty.hpp>
 
 #include "udp_ros_bridge/udp_receiver.hpp"
 #include "udp_ros_bridge/command_router.hpp"
@@ -26,7 +29,11 @@ private:
   UdpReceiver udp_;
   udp_ros_bridge::JsonCommandDecoder decoder_;
   udp_ros_bridge::CommandRouter router_;
+
+  rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr base_pub_;
   rclcpp::Publisher<sensor_msgs::msg::JointState>::SharedPtr joint_pub_;
+  rclcpp::Publisher<geometry_msgs::msg::PoseStamped>::SharedPtr pose_pub_;
+  rclcpp::Publisher<std_msgs::msg::Empty>::SharedPtr stop_pub_;
   std::thread consumer_thread_;
   std::atomic<bool> running_{false};
 };
