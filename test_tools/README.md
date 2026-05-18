@@ -138,3 +138,15 @@ python3 /home/proje/ros2_ws/src/udp_ros_bridge/test_tools/udp_sender.py
   "payload": {}
 }
 ```
+
+# operation goal
+```text
+Robot control uses “latest message wins” behavior, so only the most recent UDP packet is used and no queueing is required.
+
+- base_velocity (teleop): 30–60 Hz (up to 100 Hz max). Continuous stream while moving; stop triggers slowdown if updates stop.
+- cartesian_pose (arm/target): 5–15 Hz while actively adjusting; lower (1–5 Hz) when holding a stable goal.
+- stop: event-based only; optional low-rate repetition for safety.
+
+UI runs independently from networking. The robot applies smoothing, interpolation, and safety timeouts (≈200–500 ms) if messages stop arriving.
+
+```
