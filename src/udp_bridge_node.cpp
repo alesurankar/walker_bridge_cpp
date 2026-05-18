@@ -14,7 +14,7 @@ UdpBridgeNode::UdpBridgeNode()
   joint_pub_ = this->create_publisher<sensor_msgs::msg::JointState>(
     "/walker/joint_states", 10);
 
-  pose_pub_ = this->create_publisher<geometry_msgs::msg::PoseStamped>(
+  pose_pub_ = this->create_publisher<motion_interfaces::msg::CartesianPoseCommand>(
     "/walker/cartesian_pose_command", 10);
 
   stop_pub_ = this->create_publisher<std_msgs::msg::Empty>(
@@ -124,10 +124,12 @@ void UdpBridgeNode::publish_cartesian_pose(const udp_ros_bridge::CartesianPoseCo
     cp.orientation_gain,
     cp.is_relative ? "true" : "false");
 
-  geometry_msgs::msg::PoseStamped msg;
+  motion_interfaces::msg::CartesianPoseCommand msg;
 
   msg.header.stamp = this->now();
   msg.header.frame_id = cp.frame_id;
+
+  msg.target_link = cp.target_link;
 
   msg.pose.position.x = cp.x;
   msg.pose.position.y = cp.y;
@@ -137,6 +139,10 @@ void UdpBridgeNode::publish_cartesian_pose(const udp_ros_bridge::CartesianPoseCo
   msg.pose.orientation.y = cp.qy;
   msg.pose.orientation.z = cp.qz;
   msg.pose.orientation.w = cp.qw;
+
+  msg.position_gain = cp.position_gain;
+  msg.orientation_gain = cp.orientation_gain;
+  msg.is_relative = cp.is_relative;
 
   pose_pub_->publish(msg);
 }
