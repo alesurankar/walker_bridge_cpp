@@ -16,10 +16,12 @@ while True:
     yaw_rate = 0.2 * math.cos(t)
 
     msg = {
-      "timestamp": 123,
-      "robot_id": 1,
-      "type": "cartesian_pose",
-      "priority": 1,
+      "header": {
+        "timestamp": 123,
+        "robot_id": 1,
+        "type": "cartesian_pose",
+        "priority": 1,
+      }
       "payload": {
         "target_link": "L_wrist",
         "frame_id": "world",

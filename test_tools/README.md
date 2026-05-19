@@ -22,10 +22,12 @@ python3 /home/proje/ros2_ws/src/udp_ros_bridge/test_tools/udp_sender.py
 
 # Base velocity command
 {
-  "timestamp": int((t - start) * 1000),
-  "robot_id": 1,
-  "type": "base_velocity",
-  "priority": 1,
+  "header": {
+    "timestamp": int((t - start) * 1000),
+    "robot_id": 1,
+    "type": "base_velocity",
+    "priority": 1,
+  }
   "payload": {
     "vx": 0.5,
     "vy": 0.0,
@@ -35,10 +37,12 @@ python3 /home/proje/ros2_ws/src/udp_ros_bridge/test_tools/udp_sender.py
 
 # Joint position command
 {
-  "timestamp": int((t - start) * 1000),
-  "robot_id": 1,
-  "type": "joint_position",
-  "priority": 1,
+  "header": {
+    "timestamp": int((t - start) * 1000),
+    "robot_id": 1,
+    "type": "joint_position",
+    "priority": 1,
+  }
   "payload": {
     "names": [
       "waist_yaw_joint",
@@ -109,10 +113,12 @@ python3 /home/proje/ros2_ws/src/udp_ros_bridge/test_tools/udp_sender.py
 
 # Cartesian pose command
 {
-  "timestamp": 123,
-  "robot_id": 1,
-  "type": "cartesian_pose",
-  "priority": 1,
+  "header": {
+    "timestamp": 123,
+    "robot_id": 1,
+    "type": "cartesian_pose",
+    "priority": 1,
+  }
   "payload": {
     "target_link": "L_wrist",
     "frame_id": "world",
@@ -131,10 +137,12 @@ python3 /home/proje/ros2_ws/src/udp_ros_bridge/test_tools/udp_sender.py
 
 # Stop command
 {
-  "timestamp": 123,
-  "robot_id": 1,
-  "type": "stop",
-  "priority": 1,
+  "header": {
+    "timestamp": 123,
+    "robot_id": 1,
+    "type": "stop",
+    "priority": 1,
+  }
   "payload": {}
 }
 ```
