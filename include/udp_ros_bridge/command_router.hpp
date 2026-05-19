@@ -1,8 +1,13 @@
 #pragma once
-#include <functional>
-#include <variant>
-#include "udp_ros_bridge/protocol/command_message.hpp"
 
+#include <functional>
+
+#include <motion_interfaces/msg/base_velocity_command.hpp>
+#include <motion_interfaces/msg/joint_position_command.hpp>
+#include <motion_interfaces/msg/cartesian_pose_command.hpp>
+#include <motion_interfaces/msg/stop_command.hpp>
+
+#include "udp_ros_bridge/protocol/command_message.hpp"
 
 namespace udp_ros_bridge
 {
@@ -10,29 +15,36 @@ namespace udp_ros_bridge
 class CommandRouter
 {
 public:
-  using JointCallback = std::function<void(const JointPosition&)>;
-  using BaseCallback  = std::function<void(const BaseVelocity&)>;
-  using PoseCallback  = std::function<void(const CartesianPoseCommand&)>;
-  using StopCallback  = std::function<void()>;
+  using JointCallback = std::function<void(
+      const motion_interfaces::msg::JointPositionCommand&)>;
+
+  using BaseCallback = std::function<void(
+      const motion_interfaces::msg::BaseVelocityCommand&)>;
+
+  using PoseCallback = std::function<void(
+      const motion_interfaces::msg::CartesianPoseCommand&)>;
+
+  using StopCallback = std::function<void(
+      const motion_interfaces::msg::StopCommand&)>;
 
   void set_joint_callback(JointCallback cb)
   {
-    joint_cb_ = cb;
+    joint_cb_ = std::move(cb);
   }
 
   void set_base_callback(BaseCallback cb)
   {
-    base_cb_ = cb;
+    base_cb_ = std::move(cb);
   }
 
   void set_pose_callback(PoseCallback cb)
   {
-    pose_cb_ = cb;
+    pose_cb_ = std::move(cb);
   }
 
   void set_stop_callback(StopCallback cb)
   {
-    stop_cb_ = cb;
+    stop_cb_ = std::move(cb);
   }
 
   void route(const CommandMessage& cmd)
@@ -40,25 +52,26 @@ public:
     switch (cmd.type) {
       case CommandType::JointPosition:
         if (joint_cb_) {
-          joint_cb_(std::get<JointPosition>(cmd.payload));
+          joint_cb_(std::get<motion_interfaces::msg::JointPositionCommand>(cmd.payload));
         }
         break;
 
       case CommandType::BaseVelocity:
         if (base_cb_) {
-          base_cb_(std::get<BaseVelocity>(cmd.payload));
+          base_cb_(std::get<motion_interfaces::msg::BaseVelocityCommand>(cmd.payload));
         }
         break;
 
       case CommandType::CartesianPose:
         if (pose_cb_) {
-          pose_cb_(std::get<CartesianPoseCommand>(cmd.payload));
+          pose_cb_(std::get<motion_interfaces::msg::CartesianPoseCommand>(cmd.payload));
         }
         break;
 
       case CommandType::Stop:
-        if (stop_cb_) {
-          stop_cb_();
+        if (stop_cb_) {stop_cb_(std::get<
+              motion_interfaces::msg::StopCommand>(
+                cmd.payload));
         }
         break;
 
@@ -66,7 +79,6 @@ public:
         break;
     }
   }
-
 private:
   JointCallback joint_cb_;
   BaseCallback base_cb_;

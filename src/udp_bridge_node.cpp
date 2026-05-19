@@ -8,36 +8,36 @@ UdpBridgeNode::UdpBridgeNode()
   Node("udp_bridge_node"),
   udp_(17945)
 {
-  base_pub_ = this->create_publisher<geometry_msgs::msg::Twist>(
-    "/walker/base_velocity", 10);
+  base_pub_ = this->create_publisher<motion_interfaces::msg::BaseVelocityCommand>(
+    "/walker/base_velocity_command", 10);
   
-  joint_pub_ = this->create_publisher<sensor_msgs::msg::JointState>(
-    "/walker/joint_states", 10);
+  joint_pub_ = this->create_publisher<motion_interfaces::msg::JointPositionCommand>(
+    "/walker/joint_position_command", 10);
 
   pose_pub_ = this->create_publisher<motion_interfaces::msg::CartesianPoseCommand>(
     "/walker/cartesian_pose_command", 10);
 
-  stop_pub_ = this->create_publisher<std_msgs::msg::Empty>(
-    "/walker/stop", 10);
-
-  router_.set_joint_callback(
-    [this](const udp_ros_bridge::JointPosition& jp) {
-      publish_joint_state(jp);
-    });
+  stop_pub_ = this->create_publisher<motion_interfaces::msg::StopCommand>(
+    "/walker/stop_command", 10);
 
   router_.set_base_callback(
-    [this](const udp_ros_bridge::BaseVelocity& bv) {
-      publish_base_velocity(bv);
+    [this](const motion_interfaces::msg::BaseVelocityCommand& msg) {
+      publish_base_velocity(msg);
+    });
+
+  router_.set_joint_callback(
+    [this](const motion_interfaces::msg::JointPositionCommand& msg) {
+      publish_joint_state(msg);
     });
 
   router_.set_pose_callback(
-    [this](const udp_ros_bridge::CartesianPoseCommand& cp) {
-      publish_cartesian_pose(cp);
+    [this](const motion_interfaces::msg::CartesianPoseCommand& msg) {
+      publish_cartesian_pose(msg);
     });
 
   router_.set_stop_callback(
-    [this]() {
-      publish_stop();
+    [this](const motion_interfaces::msg::StopCommand& msg) {
+      publish_stop(msg);
     });
 
   udp_.start();
@@ -72,85 +72,34 @@ void UdpBridgeNode::consumer_loop()
   }
 }
 
-void UdpBridgeNode::publish_base_velocity(const udp_ros_bridge::BaseVelocity& bv)
+void UdpBridgeNode::publish_base_velocity(const motion_interfaces::msg::BaseVelocityCommand& msg)
 {
   RCLCPP_INFO(this->get_logger(),
-    "Base velocity: vx=%.2f vy=%.2f yaw=%.2f",
-    bv.vx, bv.vy, bv.yaw_rate);
-    
-  geometry_msgs::msg::Twist msg;
-
-  msg.linear.x = bv.vx;
-  msg.linear.y = bv.vy;
-  msg.angular.z = bv.yaw_rate;
+    "Publishing BaseVelocityCommand");
 
   base_pub_->publish(msg);
 }
 
-void UdpBridgeNode::publish_joint_state(const udp_ros_bridge::JointPosition& jp)
+void UdpBridgeNode::publish_joint_state(const motion_interfaces::msg::JointPositionCommand& msg)
 {
-  sensor_msgs::msg::JointState msg;
-
-  msg.header.stamp = this->now();
-  msg.name = jp.names;
-  msg.position.resize(jp.positions.size());
-
-  for (size_t i = 0; i < jp.positions.size(); i++) {
-    msg.position[i] = static_cast<double>(jp.positions[i]);
-  }
-
   RCLCPP_INFO(this->get_logger(),
-    "Publishing JointState: %zu joints",
-    msg.name.size());
+    "Publishing JointPositionCommand");
 
   joint_pub_->publish(msg);
 }
 
-void UdpBridgeNode::publish_cartesian_pose(const udp_ros_bridge::CartesianPoseCommand& cp)
+void UdpBridgeNode::publish_cartesian_pose(const motion_interfaces::msg::CartesianPoseCommand& msg)
 {
   RCLCPP_INFO(this->get_logger(),
-    "\n[CartesianPoseCommand]\n"
-    "  target_link: %s\n"
-    "  frame_id: %s\n"
-    "  position: (%.2f %.2f %.2f)\n"
-    "  orientation (quat): (%.2f %.2f %.2f %.2f)\n"
-    "  gains: pos=%.2f ori=%.2f\n"
-    "  is_relative: %s",
-    cp.target_link.c_str(),
-    cp.frame_id.c_str(),
-    cp.x, cp.y, cp.z,
-    cp.qx, cp.qy, cp.qz, cp.qw,
-    cp.position_gain,
-    cp.orientation_gain,
-    cp.is_relative ? "true" : "false");
-
-  motion_interfaces::msg::CartesianPoseCommand msg;
-
-  msg.header.stamp = this->now();
-  msg.header.frame_id = cp.frame_id;
-
-  msg.target_link = cp.target_link;
-
-  msg.pose.position.x = cp.x;
-  msg.pose.position.y = cp.y;
-  msg.pose.position.z = cp.z;
-
-  msg.pose.orientation.x = cp.qx;
-  msg.pose.orientation.y = cp.qy;
-  msg.pose.orientation.z = cp.qz;
-  msg.pose.orientation.w = cp.qw;
-
-  msg.position_gain = cp.position_gain;
-  msg.orientation_gain = cp.orientation_gain;
-  msg.is_relative = cp.is_relative;
+    "Publishing CartesianPoseCommand");
 
   pose_pub_->publish(msg);
 }
 
-void UdpBridgeNode::publish_stop()
+void UdpBridgeNode::publish_stop(const motion_interfaces::msg::StopCommand& msg)
 {
-  RCLCPP_WARN(this->get_logger(), "STOP command received");
+  RCLCPP_WARN(this->get_logger(),
+    "Publishing StopCommand");
 
-  std_msgs::msg::Empty msg;
   stop_pub_->publish(msg);
 }

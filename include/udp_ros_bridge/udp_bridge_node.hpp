@@ -1,7 +1,4 @@
 #include <rclcpp/rclcpp.hpp>
-#include <sensor_msgs/msg/joint_state.hpp>
-#include <geometry_msgs/msg/twist.hpp>
-#include <std_msgs/msg/empty.hpp>
 
 #include <motion_interfaces/msg/base_velocity_command.hpp>
 #include <motion_interfaces/msg/joint_position_command.hpp>
@@ -31,7 +28,6 @@ private:
   UdpReceiver udp_;
   udp_ros_bridge::JsonCommandDecoder decoder_;
   udp_ros_bridge::CommandRouter router_;
-
   rclcpp::Publisher<motion_interfaces::msg::BaseVelocityCommand>::SharedPtr base_pub_;
   rclcpp::Publisher<motion_interfaces::msg::JointPositionCommand>::SharedPtr joint_pub_;
   rclcpp::Publisher<motion_interfaces::msg::CartesianPoseCommand>::SharedPtr pose_pub_;
