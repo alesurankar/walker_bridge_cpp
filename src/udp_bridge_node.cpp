@@ -58,17 +58,24 @@ UdpBridgeNode::~UdpBridgeNode()
 void UdpBridgeNode::consumer_loop()
 {
   UdpMessage msg;
+  UdpMessage latest_msg;
 
   while (rclcpp::ok() && running_) {
-    while (udp_.pop_message(msg)) {
-      auto cmd_opt = decoder_.decode(msg.data, msg.size);
+    bool got_message = false;
 
-      if (!cmd_opt) {
-        continue;
-      }
-      router_.route(*cmd_opt);
+    while (udp_.pop_message(msg)) {
+      latest_msg = msg;
+      got_message = true;
     }
-    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+
+    if (got_message) {
+      auto cmd_opt = decoder_.decode(latest_msg.data, latest_msg.size);
+
+      if (cmd_opt) {
+        router_.route(*cmd_opt);
+      }
+    }
+    std::this_thread::sleep_for(std::chrono::milliseconds(2));
   }
 }
 

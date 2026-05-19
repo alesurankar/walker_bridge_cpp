@@ -122,8 +122,8 @@ python3 /home/proje/ros2_ws/src/udp_ros_bridge/test_tools/udp_sender.py
     "priority": 1,
   },
   "payload": {
-    "target_link": "L_wrist",
-    "frame_id": "world",
+    "target_link": "L_wrist_roll_link",
+    "frame_id": "base_link",
     "x": 0.3,
     "y": 0.0,
     "z": 1.2,

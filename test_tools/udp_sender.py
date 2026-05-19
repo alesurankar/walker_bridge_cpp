@@ -23,8 +23,8 @@ while True:
         "priority": 1,
       },
       "payload": {
-        "target_link": "L_wrist",
-        "frame_id": "world",
+        "target_link": "L_wrist_roll_link",
+        "frame_id": "base_link",
         "x": 0.3,
         "y": 0.0,
         "z": 1.2,
@@ -42,4 +42,4 @@ while True:
     sock.sendto(data, (UDP_IP, UDP_PORT))
 
     print("sent:", vx, yaw_rate)
-    time.sleep(0.5)
+    time.sleep(10)
