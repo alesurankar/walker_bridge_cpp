@@ -21,7 +21,7 @@ while True:
         "robot_id": 1,
         "type": "cartesian_pose",
         "priority": 1,
-      }
+      },
       "payload": {
         "target_link": "L_wrist",
         "frame_id": "world",
