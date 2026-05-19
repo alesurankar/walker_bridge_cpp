@@ -13,6 +13,8 @@
   <depend>nlohmann_json</depend>
   <depend>boost</depend>
   <depend>motion_interfaces</depend>
+  <!-- REQUIRED because your messages contain geometry_msgs/Pose -->
+  <depend>geometry_msgs</depend>
 
   <export>
     <build_type>ament_cmake</build_type>

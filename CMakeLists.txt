@@ -17,6 +17,7 @@ find_package(nlohmann_json REQUIRED)
 find_package(Boost REQUIRED COMPONENTS system)
 find_package(Threads REQUIRED)
 find_package(motion_interfaces REQUIRED)
+find_package(geometry_msgs REQUIRED)
 
 # Executable
 add_executable(udp_bridge_node
@@ -30,6 +31,7 @@ ament_target_dependencies(udp_bridge_node
   rclcpp
   nlohmann_json
   motion_interfaces
+  geometry_msgs
 )
 
 # Proper Boost linking
