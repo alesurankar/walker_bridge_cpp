@@ -1,6 +1,9 @@
 #include "udp_ros_bridge/decoders/json_command_decoder.hpp"
+
 #include <nlohmann/json.hpp>
 #include <iostream>
+#include <string>
+#include <algorithm>
 
 
 using json = nlohmann::json;
@@ -11,127 +14,252 @@ namespace udp_ros_bridge
 std::optional<CommandMessage>
 JsonCommandDecoder::decode(const std::byte* data, std::size_t size)
 {
+  // =====================================================
+  // VALIDATE INPUT
+  // =====================================================
   if (!data || size == 0) {
-    std::cout << "[JSON DECODER] invalid input\n";
+
+    std::cout
+      << "[JSON DECODER] invalid input\n";
+
     return std::nullopt;
   }
 
-  std::string str(reinterpret_cast<const char*>(data), size);
-  std::cout << "[JSON DECODER] raw: " << str << std::endl;
+  // =====================================================
+  // RAW STRING
+  // =====================================================
+  std::string str(
+    reinterpret_cast<const char*>(data),
+    size);
 
+  std::cout
+    << "[JSON DECODER] raw: "
+    << str
+    << std::endl;
+
+  // =====================================================
+  // PARSE JSON
+  // =====================================================
   json j;
+
   try {
     j = json::parse(str);
-  } 
+  }
   catch (const std::exception& e) {
-    std::cout << "[JSON DECODER] parse failed: " << e.what() << std::endl;
+
+    std::cout
+      << "[JSON DECODER] parse failed: "
+      << e.what()
+      << std::endl;
+
     return std::nullopt;
   }
-  CommandMessage msg;
 
-  msg.sender_timestamp = j.value("timestamp", 0);
-  std::cout << "[JSON DECODER] timestamp = " << msg.sender_timestamp << "\n";
-  msg.robot_id = j.value("robot_id", 0);
-  std::cout << "[JSON DECODER] robot_id = " << msg.robot_id << "\n";
-  msg.priority = j.value("priority", 0);
-  std::cout << "[JSON DECODER] priority = " << (int)msg.priority << "\n";
-  std::string type = j.value("type", "unknown");
-  std::cout << "[JSON DECODER] type string = " << type << "\n";
+  // =====================================================
+  // VALIDATE ROOT
+  // =====================================================
+  if (!j.contains("header")) {
 
-  // ================= BASE VELOCITY =================
-  if (type == "base_velocity") {
-    msg.type = CommandType::BaseVelocity;
-    auto& p = msg.payload.emplace<BaseVelocity>();
-    const auto& pl = j["payload"];
+    std::cout
+      << "[JSON DECODER] missing header\n";
 
-    p.vx = pl.value("vx", 0.0f);
-    p.vy = pl.value("vy", 0.0f);
-    p.yaw_rate = pl.value("yaw_rate", 0.0f);
-
-    std::cout << "[JSON DECODER] BaseVelocity OK\n";
+    return std::nullopt;
   }
 
-  // ================= JOINT POSITION =================
+  if (!j.contains("payload")) {
+    std::cout
+      << "[JSON DECODER] missing payload\n";
+
+    return std::nullopt;
+  }
+
+  const auto& header =
+    j["header"];
+  const auto& payload =
+    j["payload"];
+
+  // =====================================================
+  // CREATE COMMAND MESSAGE
+  // =====================================================
+  CommandMessage msg;
+
+  // =====================================================
+  // HEADER
+  // =====================================================
+  msg.sender_timestamp =
+    header.value("timestamp", 0ULL);
+  msg.robot_id =
+    header.value("robot_id", 0);
+  msg.priority =
+    header.value("priority", 0);
+  const std::string type =
+    header.value("type", "unknown");
+  std::cout
+    << "[JSON DECODER] type = "
+    << type
+    << std::endl;
+
+  // =====================================================
+  // BASE VELOCITY
+  // =====================================================
+  if (type == "base_velocity") {
+    msg.type =
+      CommandType::BaseVelocity;
+    auto& p =
+      msg.payload.emplace<
+        motion_interfaces::msg::BaseVelocityCommand>();
+    p.vx =
+      payload.value("vx", 0.0f);
+    p.vy =
+      payload.value("vy", 0.0f);
+    p.yaw_rate =
+      payload.value("yaw_rate", 0.0f);
+
+    std::cout
+      << "[JSON DECODER] BaseVelocity OK\n";
+  }
+
+  // JOINT POSITION
   else if (type == "joint_position") {
-    msg.type = CommandType::JointPosition;
 
-    auto& p = msg.payload.emplace<JointPosition>();
-    auto payload = j["payload"];
+    msg.type =
+      CommandType::JointPosition;
 
-    if (!payload.contains("names") || !payload.contains("positions")) {
-      std::cout << "[JSON DECODER] ERROR: missing 'names' or 'positions'\n";
+    auto& p =
+      msg.payload.emplace<
+        motion_interfaces::msg::JointPositionCommand>();
+
+    if (!payload.contains("names") ||
+        !payload.contains("positions")) {
+
+      std::cout
+        << "[JSON DECODER] missing names/positions\n";
+
       return std::nullopt;
     }
-    auto names = payload["names"];
-    auto positions = payload["positions"];
 
-    if (!names.is_array() || !positions.is_array()) {
-      std::cout << "[JSON DECODER] ERROR: 'names' or 'positions' not arrays\n";
+    const auto& names =
+      payload["names"];
+
+    const auto& positions =
+      payload["positions"];
+
+    if (!names.is_array() ||
+        !positions.is_array()) {
+
+      std::cout
+        << "[JSON DECODER] names/positions not arrays\n";
+
       return std::nullopt;
     }
 
-    size_t n = std::min(names.size(), positions.size());
+    const size_t n =
+      std::min(names.size(), positions.size());
 
-    p.names.clear();
-    p.positions.clear();
-
-    p.names.reserve(n);
+    p.joint_names.reserve(n);
     p.positions.reserve(n);
 
-    for (size_t i = 0; i < n; i++) {
-      p.names.push_back(names[i].get<std::string>());
-      p.positions.push_back(positions[i].get<float>());
+    for (size_t i = 0; i < n; ++i) {
+
+      p.joint_names.push_back(
+        names[i].get<std::string>());
+
+      p.positions.push_back(
+        positions[i].get<double>());
     }
 
-    std::cout << "[JSON DECODER] JointPosition OK, count = " << n << "\n";
+    std::cout
+      << "[JSON DECODER] JointPosition OK count="
+      << n
+      << "\n";
   }
 
   // ================= CARTESIAN POSE =================
-  else if (type == "cartesian_pose") {
+  else if (type == "cartesian_pose")
+  {
     msg.type = CommandType::CartesianPose;
 
-    const auto& pl = j["payload"];
+    auto& cp =
+      msg.payload.emplace<
+        motion_interfaces::msg::CartesianPoseCommand>();
 
-    udp_ros_bridge::CartesianPoseCommand cp;
+    // basic fields
 
-    // --- frame + target ---
-    cp.target_link = pl.value("target_link", "");
-    cp.frame_id    = pl.value("frame_id", "");
+    cp.target_link =
+      payload.value("target_link", "");
 
-    // --- position ---
-    cp.x = pl.value("x", 0.0f);
-    cp.y = pl.value("y", 0.0f);
-    cp.z = pl.value("z", 0.0f);
+    cp.frame_id =
+      payload.value("frame_id", "");
 
-    // --- orientation ---
-    cp.qx = pl.value("qx", 0.0f);
-    cp.qy = pl.value("qy", 0.0f);
-    cp.qz = pl.value("qz", 0.0f);
-    cp.qw = pl.value("qw", 1.0f);
+    cp.is_relative =
+      payload.value("is_relative", false);
 
-    // --- gains ---
-    cp.position_gain    = pl.value("position_gain", 1.0f);
-    cp.orientation_gain = pl.value("orientation_gain", 1.0f);
+    // position
 
-    // --- mode ---
-    cp.is_relative = pl.value("is_relative", false);
+    cp.pose.position.x =
+      payload.value("x", 0.0);
 
-    msg.payload = std::move(cp);
-    std::cout << "[JSON DECODER] mapped → CartesianPose + payload\n";
+    cp.pose.position.y =
+      payload.value("y", 0.0);
+
+    cp.pose.position.z =
+      payload.value("z", 0.0);
+
+    // orientation
+
+    cp.pose.orientation.x =
+      payload.value("qx", 0.0);
+
+    cp.pose.orientation.y =
+      payload.value("qy", 0.0);
+
+    cp.pose.orientation.z =
+      payload.value("qz", 0.0);
+
+    cp.pose.orientation.w =
+      payload.value("qw", 1.0);
+
+    // gains
+
+    cp.position_gain =
+      payload.value("position_gain", 1.0);
+
+    cp.orientation_gain =
+      payload.value("orientation_gain", 1.0);
+
+    std::cout
+      << "[JSON DECODER] CartesianPose OK\n";
   }
 
-  // ================= STOP =================
+  // =====================================================
+  // STOP
+  // =====================================================
+
   else if (type == "stop") {
-    msg.type = CommandType::Stop;
-    std::cout << "[JSON DECODER] mapped → Stop\n";
+
+    msg.type =
+      CommandType::Stop;
+
+    msg.payload.emplace<
+      motion_interfaces::msg::StopCommand>();
+
+    std::cout
+      << "[JSON DECODER] Stop OK\n";
   }
 
-  // ================= UNKNOWN =================
+  // =====================================================
+  // UNKNOWN
+  // =====================================================
+
   else {
-    msg.type = CommandType::Unknown;
-    std::cout << "[JSON DECODER] mapped → UNKNOWN\n";
+
+    std::cout
+      << "[JSON DECODER] UNKNOWN TYPE\n";
+
+    return std::nullopt;
   }
+
   return msg;
 }
 
-}
+} // namespace udp_ros_bridge
