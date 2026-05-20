@@ -76,10 +76,11 @@ time.sleep(1.0)
 while True:
 
   t = time.monotonic()
+  elapsed = t - start
 
   pose_msg = {
     "header": {
-      "timestamp": int((t - start) * 1000),
+      "timestamp": int(elapsed * 1000),
       "robot_id": 1,
       "type": "cartesian_pose",
       "priority": 1,
@@ -87,9 +88,9 @@ while True:
     "payload": {
       "target_link": "L_wrist_roll_link",
       "frame_id": "base_link",
-      "x": 0.3,
-      "y": 0.0,
-      "z": 1.2,
+      "x": 0.3 + 0.02 * math.sin(elapsed),
+      "y": 0.02 * math.cos(elapsed),
+      "z": 0.2,
       "qx": 0.0,
       "qy": 0.0,
       "qz": 0.0,
