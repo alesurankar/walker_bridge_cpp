@@ -86,8 +86,6 @@ JsonCommandDecoder::decode(const std::byte* data, std::size_t size)
   // =====================================================
   // HEADER
   // =====================================================
-  msg.sender_timestamp =
-    header.value("timestamp", 0ULL);
   msg.robot_id =
     header.value("robot_id", 0);
   msg.priority =

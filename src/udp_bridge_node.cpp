@@ -81,10 +81,15 @@ void UdpBridgeNode::consumer_loop()
 
 void UdpBridgeNode::publish_base_velocity(const motion_interfaces::msg::BaseVelocityCommand& msg)
 {
-  RCLCPP_INFO(this->get_logger(),
-    "Publishing BaseVelocityCommand");
+  auto stamped_msg = msg;
+  stamped_msg.metadata.stamp = this->get_clock()->now();
 
-  base_pub_->publish(msg);
+  RCLCPP_INFO(
+    get_logger(),
+    "BASE | ros_time=%.9f",
+    rclcpp::Time(stamped_msg.metadata.stamp).seconds());
+
+  base_pub_->publish(stamped_msg);
 }
 
 void UdpBridgeNode::publish_joint_state(const motion_interfaces::msg::JointPositionCommand& msg)
@@ -92,7 +97,14 @@ void UdpBridgeNode::publish_joint_state(const motion_interfaces::msg::JointPosit
   RCLCPP_INFO(this->get_logger(),
     "Publishing JointPositionCommand");
 
-  joint_pub_->publish(msg);
+  auto stamped_msg = msg;
+  stamped_msg.metadata.stamp = this->get_clock()->now();
+
+  RCLCPP_INFO(
+    get_logger(),
+    "JOINT | ros_time=%.9f",
+    rclcpp::Time(stamped_msg.metadata.stamp).seconds());
+  joint_pub_->publish(stamped_msg);
 }
 
 void UdpBridgeNode::publish_cartesian_pose(const motion_interfaces::msg::CartesianPoseCommand& msg)
@@ -100,7 +112,14 @@ void UdpBridgeNode::publish_cartesian_pose(const motion_interfaces::msg::Cartesi
   RCLCPP_INFO(this->get_logger(),
     "Publishing CartesianPoseCommand");
 
-  pose_pub_->publish(msg);
+  auto stamped_msg = msg;
+  stamped_msg.metadata.stamp = this->get_clock()->now();
+
+  RCLCPP_INFO(
+    get_logger(),
+    "POSE | ros_time=%.9f",
+    rclcpp::Time(stamped_msg.metadata.stamp).seconds());
+  pose_pub_->publish(stamped_msg);
 }
 
 void UdpBridgeNode::publish_stop(const motion_interfaces::msg::StopCommand& msg)
@@ -108,5 +127,12 @@ void UdpBridgeNode::publish_stop(const motion_interfaces::msg::StopCommand& msg)
   RCLCPP_WARN(this->get_logger(),
     "Publishing StopCommand");
 
-  stop_pub_->publish(msg);
+  auto stamped_msg = msg;
+  stamped_msg.metadata.stamp = this->get_clock()->now();
+
+  RCLCPP_INFO(
+    get_logger(),
+    "STOP | ros_time=%.9f",
+    rclcpp::Time(stamped_msg.metadata.stamp).seconds());
+  stop_pub_->publish(stamped_msg);
 }

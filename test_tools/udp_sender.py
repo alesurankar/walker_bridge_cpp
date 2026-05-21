@@ -13,7 +13,6 @@ start = time.monotonic()
 # Initial robot state
 joint_msg = {
   "header": {
-    "timestamp": 0,
     "robot_id": 1,
     "type": "joint_position",
     "priority": 1,
@@ -80,7 +79,6 @@ while True:
 
   pose_msg = {
     "header": {
-      "timestamp": int(elapsed * 1000),
       "robot_id": 1,
       "type": "cartesian_pose",
       "priority": 1,
