@@ -68,10 +68,17 @@ sock.sendto(
   (UDP_IP, UDP_PORT)
 )
 # Give MoveIt time to receive /joint_states
-time.sleep(1.0)
+time.sleep(1.5)
 
 
 # STEP 2: send cartesian target
+BASE_X = 0.30
+BASE_Y = 0.00
+BASE_Z = 0.25
+
+SINE_AMPLITUDE = 0.01
+SEND_PERIOD = 2.0  
+
 while True:
 
   t = time.monotonic()
@@ -84,17 +91,17 @@ while True:
       "priority": 1,
     },
     "payload": {
-      "target_link": "L_wrist_roll_link",
+      "target_link": "L_sixforce_link",
       "frame_id": "base_link",
-      "x": 0.3 + 0.02 * math.sin(elapsed),
-      "y": 0.02 * math.cos(elapsed),
-      "z": 0.2,
+      "x": 0.25,
+      "y": 0.0,
+      "z": 0.25,
       "qx": 0.0,
       "qy": 0.0,
       "qz": 0.0,
       "qw": 1.0,
-      "position_gain": 1.0,
-      "orientation_gain": 1.0,
+      "position_gain": 0.5,
+      "orientation_gain": 0.5,
       "is_relative": False
     }
   }
