@@ -12,20 +12,20 @@ sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 start = time.monotonic()
 
 # slower command rate (important for MoveIt stability)
-SEND_PERIOD = 5  # seconds
+SEND_PERIOD = 0.5  # seconds
 
 # motion limits (keep inside reachable workspace)
-BASE_X = 0.25
-BASE_Y = 0.00
-BASE_Z = 0.25
+BASE_X = 0.05
+BASE_Y = 0.2
+BASE_Z = 1.15
 
 while True:
     t = time.monotonic() - start
 
     # smooth continuous motion (not jerky)
-    x = BASE_X + 0.03 * math.sin(t * 0.6)
-    y = BASE_Y + 0.03 * math.cos(t * 0.4)
-    z = BASE_Z + 0.01 * math.sin(t * 0.3)
+    x = (BASE_X + 0.14 * math.sin(t * 0.6))
+    y = (BASE_Y + 0.14 * math.cos(t * 0.4))
+    z = (BASE_Z + 0.1 * math.sin(t * 0.3))
 
     # tiny orientation variation (optional but safe)
     yaw = 0.2 * math.sin(t * 0.5)
@@ -37,17 +37,21 @@ while True:
             "priority": 1,
         },
         "payload": {
-            "target_link": "R_sixforce_link",
+            "target_link": "L_sixforce_link",
             "frame_id": "base_link",
 
-            "x": float(x),
-            "y": float(y),
-            "z": float(z),
+            #"x": float(x),  # positive front, negative back
+            "x": BASE_X,  # positive front, negative back
+            # "y": float(y), # positive left, negative right
+            "y": BASE_Y,
+            #"z": float(z), # positive up, negative down
+            "z": BASE_Z,
 
             # small controlled orientation change
-            "qx": 0.0,
-            "qy": 0.0,
-            "qz": math.sin(yaw / 2.0),
+            "qx": -0.05,
+            "qy": 0.1,
+            # "qz": math.sin(yaw / 2.0),
+            "qz": 0.0,
             "qw": math.cos(yaw / 2.0),
 
             "position_gain": 0.4,
