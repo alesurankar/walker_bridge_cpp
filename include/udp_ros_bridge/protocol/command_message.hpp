@@ -1,6 +1,7 @@
 #pragma once
 #include <motion_interfaces/msg/base_velocity_command.hpp>
 #include <motion_interfaces/msg/joint_position_command.hpp>
+#include <motion_interfaces/msg/cartesian_velocity_command.hpp>
 #include <motion_interfaces/msg/cartesian_pose_command.hpp>
 #include <motion_interfaces/msg/stop_command.hpp>
 
@@ -15,6 +16,7 @@ enum class CommandType : uint8_t
 {
     BaseVelocity,
     JointPosition,
+    CartesianVelocity,
     CartesianPose,
     Stop,
     Unknown
@@ -24,6 +26,7 @@ enum class CommandType : uint8_t
 using CommandPayload = std::variant<
     motion_interfaces::msg::BaseVelocityCommand,
     motion_interfaces::msg::JointPositionCommand,
+    motion_interfaces::msg::CartesianVelocityCommand,
     motion_interfaces::msg::CartesianPoseCommand,
     motion_interfaces::msg::StopCommand
 >;

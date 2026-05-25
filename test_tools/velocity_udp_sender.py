@@ -14,21 +14,32 @@ SEND_PERIOD = 0.01  # 100 Hz
 while True:
     t = time.monotonic() - start
 
-    # --- base velocity signal ---
-    vx = 0.25 * math.sin(t * 0.6)
-    vy = 0.20 * math.cos(t * 0.4)
-    yaw_rate = 0.35 * math.sin(t * 0.5)
+    # --- Cartesian velocity profile ---
+    vx = 0.05 * math.sin(t * 0.6)
+    vy = 0.04 * math.cos(t * 0.4)
+    vz = 0.03 * math.sin(t * 0.3)
+
+    wz = 0.25 * math.sin(t * 0.5)
 
     msg = {
         "header": {
             "robot_id": 1,
-            "type": "base_velocity",
+            "type": "cartesian_velocity",
             "priority": 1
         },
+
         "payload": {
+            "frame_id": "base_link",
+            "target_link": "L_wrist_roll_link",
+            "is_relative": False,
+
             "vx": float(vx),
             "vy": float(vy),
-            "yaw_rate": float(yaw_rate)
+            "vz": float(vz),
+
+            "wx": 0.0,
+            "wy": 0.0,
+            "wz": float(wz)
         }
     }
 
@@ -37,6 +48,9 @@ while True:
         (UDP_IP, UDP_PORT)
     )
 
-    print(f"UDP vx={vx:.3f}, vy={vy:.3f}, yaw={yaw_rate:.3f}")
+    print(
+        f"UDP cartesian_velocity "
+        f"vx={vx:.3f}, vy={vy:.3f}, vz={vz:.3f}, wz={wz:.3f}"
+    )
 
     time.sleep(SEND_PERIOD)

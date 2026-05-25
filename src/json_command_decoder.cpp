@@ -117,7 +117,9 @@ JsonCommandDecoder::decode(const std::byte* data, std::size_t size)
       << "[JSON DECODER] BaseVelocity OK\n";
   }
 
+  // =====================================================
   // JOINT POSITION
+  // =====================================================
   else if (type == "joint_position") {
 
     msg.type =
@@ -172,9 +174,30 @@ JsonCommandDecoder::decode(const std::byte* data, std::size_t size)
       << "\n";
   }
 
+  // ================= CARTESIAN VELOCITY =================
+  else if (type == "cartesian_velocity") {
+    
+    msg.type =
+      CommandType::CartesianVelocity;
+
+    auto& cv =
+      msg.payload.emplace<
+        motion_interfaces::msg::CartesianVelocityCommand>();
+
+    cv.vx = payload.value("vx", 0.0);
+    cv.vy = payload.value("vy", 0.0);
+    cv.vz = payload.value("vz", 0.0);
+      
+    cv.wx = payload.value("wx", 0.0);
+    cv.wy = payload.value("wy", 0.0);
+    cv.wz = payload.value("wz", 0.0);
+
+    std::cout
+      << "[JSON DECODER] CartesianVelocity OK\n";
+  }
+
   // ================= CARTESIAN POSE =================
-  else if (type == "cartesian_pose")
-  {
+  else if (type == "cartesian_pose") {
     msg.type = CommandType::CartesianPose;
 
     auto& cp =
@@ -182,7 +205,6 @@ JsonCommandDecoder::decode(const std::byte* data, std::size_t size)
         motion_interfaces::msg::CartesianPoseCommand>();
 
     // basic fields
-
     cp.target_link =
       payload.value("target_link", "");
 
@@ -193,7 +215,6 @@ JsonCommandDecoder::decode(const std::byte* data, std::size_t size)
       payload.value("is_relative", false);
 
     // position
-
     cp.pose.position.x =
       payload.value("x", 0.0);
 
@@ -204,7 +225,6 @@ JsonCommandDecoder::decode(const std::byte* data, std::size_t size)
       payload.value("z", 0.0);
 
     // orientation
-
     cp.pose.orientation.x =
       payload.value("qx", 0.0);
 
