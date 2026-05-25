@@ -26,7 +26,6 @@ python3 /home/proje/ros2_ws/src/udp_ros_bridge/test_tools/udp_sender_fake.py
 # Base velocity command
 {
   "header": {
-    "timestamp": int((t - start) * 1000),
     "robot_id": 1,
     "type": "base_velocity",
     "priority": 1,
@@ -41,7 +40,6 @@ python3 /home/proje/ros2_ws/src/udp_ros_bridge/test_tools/udp_sender_fake.py
 # Joint position command
 {
   "header": {
-    "timestamp": int((t - start) * 1000),
     "robot_id": 1,
     "type": "joint_position",
     "priority": 1,
@@ -117,7 +115,6 @@ python3 /home/proje/ros2_ws/src/udp_ros_bridge/test_tools/udp_sender_fake.py
 # Cartesian pose command
 {
   "header": {
-    "timestamp": 123,
     "robot_id": 1,
     "type": "cartesian_pose",
     "priority": 1,
@@ -141,7 +138,6 @@ python3 /home/proje/ros2_ws/src/udp_ros_bridge/test_tools/udp_sender_fake.py
 # Stop command
 {
   "header": {
-    "timestamp": 123,
     "robot_id": 1,
     "type": "stop",
     "priority": 1,

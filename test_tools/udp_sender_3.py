@@ -12,7 +12,7 @@ sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 start = time.monotonic()
 
 # slower command rate (important for MoveIt stability)
-SEND_PERIOD = 0.5  # seconds
+SEND_PERIOD = 3  # seconds
 
 # motion limits (keep inside reachable workspace)
 BASE_X = 0.05
