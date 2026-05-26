@@ -116,10 +116,10 @@ void UdpReceiver::handle_receive(const boost::system::error_code& error, std::si
 
   if (!queue_.push(msg)) {
     drop_count_.fetch_add(1, std::memory_order_relaxed);
-    std::cout << "[QUEUE] DROP" << std::endl;
+    //std::cout << "[QUEUE] DROP" << std::endl;
   }
   else {
-    std::cout << "==============================\n";
-    std::cout << "[QUEUE] push OK, size=" << msg.size << std::endl;
+    //std::cout << "==============================\n";
+    //std::cout << "[QUEUE] push OK, size=" << msg.size << std::endl;
   }
 }
