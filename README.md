@@ -1,6 +1,3 @@
-Below is a **precise, AI-agent–ready technical documentation** of your project. It is written so another system can immediately understand architecture, runtime behavior, data flow, and outputs.
-
----
 
 # 📡 UDP → ROS2 Bridge Project Documentation
 
@@ -596,13 +593,6 @@ Meaning:
 * system behaves like a control input stream, not a queue processor
 
 ---
-
-If you want, I can next:
-
-* convert this into a **formal README.md**
-* generate a **UML architecture diagram**
-* or produce a **ROS2 launch + system integration guide for MoveIt/Crocoddyl**
-
 
 
 
