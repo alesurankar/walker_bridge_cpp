@@ -1,0 +1,14 @@
+{
+  "target_link": "L_sixforce_link",
+  "frame_id": "base_link",
+  "x": 0.293,
+  "y": -0.102,
+  "z": 0.559,
+  "qx": 0.516,
+  "qy": 0.012,
+  "qz": 0.038,
+  "qw": 0.856,
+  "position_gain": 0.5,
+  "orientation_gain": 0.5,
+  "is_relative": false
+}
