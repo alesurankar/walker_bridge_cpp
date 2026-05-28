@@ -53,4 +53,4 @@ while True:
 
   print(f"Sent pose: x={payload['x']:.3f}, y={payload['y']:.3f}, z={payload['z']:.3f}")
 
-  time.sleep(5)
+  time.sleep(10)
