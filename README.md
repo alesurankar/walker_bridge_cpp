@@ -508,7 +508,7 @@ POSE | ros_time=...
 
 ### Sender rate:
 
-* 1 message every 10 seconds
+* 1 message every 5 seconds
 
 ### Bridge processing:
 
