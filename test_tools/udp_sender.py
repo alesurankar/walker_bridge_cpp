@@ -10,7 +10,7 @@ UDP_PORT = 17945
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DATA_DIR = os.path.join(BASE_DIR, "data")
+DATA_DIR = os.path.join(BASE_DIR, "test_data")
 print("DATA_DIR =", DATA_DIR)
 
 def load_poses():
